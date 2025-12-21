@@ -1,5 +1,6 @@
 import { CollectionConfig, Access } from 'payload'
 import { JOB_CATEGORIES, INDIAN_STATES, EDUCATION_LEVELS } from '../../lib/constants'
+import { generateJobSummary } from '../../lib/ai-service'
 
 const isStaff: Access = ({ req: { user } }) => 
   Boolean(user?.roles?.some((role: string) => ['admin', 'superadmin'].includes(role)))
@@ -15,6 +16,24 @@ export const Jobs: CollectionConfig = {
     create: isStaff,
     update: isStaff,
     delete: isStaff,
+  },
+  hooks: {
+    beforeChange: [
+      async ({ data, req, operation }) => {
+        if (operation === 'create' || (operation === 'update' && !data.aiSummary)) {
+          // If we have eligibility details, try to generate a summary
+          if (data.eligibilityDetails) {
+            try {
+              const content = JSON.stringify(data.eligibilityDetails)
+              data.aiSummary = await generateJobSummary(content)
+            } catch (err) {
+              console.error('Error generating AI summary:', err)
+            }
+          }
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {
@@ -34,6 +53,18 @@ export const Jobs: CollectionConfig = {
             { name: 'advtNo', type: 'text' },
             { name: 'totalVacancies', type: 'number' },
             { name: 'lastDate', type: 'date', required: true },
+            {
+              name: 'status',
+              type: 'select',
+              defaultValue: 'open',
+              options: [
+                { label: 'Open', value: 'open' },
+                { label: 'Admit Card Out', value: 'admit_card' },
+                { label: 'Result Declared', value: 'result' },
+                { label: 'Closed', value: 'closed' },
+              ],
+              admin: { position: 'sidebar' },
+            },
           ],
         },
         {

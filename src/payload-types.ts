@@ -860,6 +860,7 @@ export interface Job {
   advtNo?: string | null;
   totalVacancies?: number | null;
   lastDate: string;
+  status?: ('open' | 'admit_card' | 'result' | 'closed') | null;
   category?:
     | (
         | 'bank'
@@ -1560,6 +1561,7 @@ export interface JobsSelect<T extends boolean = true> {
   advtNo?: T;
   totalVacancies?: T;
   lastDate?: T;
+  status?: T;
   category?: T;
   state?: T;
   education?: T;
