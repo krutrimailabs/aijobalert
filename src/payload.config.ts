@@ -63,7 +63,7 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Media, Categories, Users, Jobs],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins,
@@ -88,3 +88,8 @@ export default buildConfig({
     tasks: [],
   },
 })
+// ✅ 2. ADD THIS AT THE VERY BOTTOM:
+import { Config } from './payload-types'
+declare module 'payload' {
+  export interface GeneratedTypes extends Config {}
+}

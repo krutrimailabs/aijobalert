@@ -1,4 +1,8 @@
-import { CollectionConfig } from 'payload'
+import { CollectionConfig, Access } from 'payload'
+import { JOB_CATEGORIES, INDIAN_STATES, EDUCATION_LEVELS } from '../../lib/constants'
+
+const isStaff: Access = ({ req: { user } }) => 
+  Boolean(user?.roles?.some((role: string) => ['admin', 'superadmin'].includes(role)))
 
 export const Jobs: CollectionConfig = {
   slug: 'jobs',
@@ -7,7 +11,10 @@ export const Jobs: CollectionConfig = {
     defaultColumns: ['postName', 'recruitmentBoard', 'state', 'lastDate'],
   },
   access: {
-    read: () => true, // 🌍 Public can read job alerts
+    read: () => true, // 🌍 Public read access
+    create: isStaff,
+    update: isStaff,
+    delete: isStaff,
   },
   fields: [
     {
@@ -36,43 +43,18 @@ export const Jobs: CollectionConfig = {
               name: 'category',
               type: 'select',
               hasMany: true,
-              options: [
-                { label: 'Bank', value: 'bank' },
-                { label: 'Teaching', value: 'teaching' },
-                { label: 'Engineering', value: 'engineering' },
-                { label: 'Railway', value: 'railway' },
-                { label: 'Police/Defence', value: 'police' },
-              ],
+              options: JOB_CATEGORIES,
             },
             {
               name: 'state',
               type: 'select',
-              options: [
-                { label: 'Andhra Pradesh', value: 'AP' },
-                { label: 'Assam', value: 'AS' },
-                { label: 'Bihar', value: 'BR' },
-                { label: 'Chhattisgarh', value: 'CG' },
-                { label: 'Delhi', value: 'DL' },
-                { label: 'Gujarat', value: 'GJ' },
-                { label: 'Telangana', value: 'TS' },
-                { label: 'Uttar Pradesh', value: 'UP' },
-                { label: 'West Bengal', value: 'WB' },
-              ],
+              options: INDIAN_STATES,
             },
             {
               name: 'education',
               type: 'select',
               hasMany: true,
-              options: [
-                { label: '8TH', value: '8TH' },
-                { label: '10TH', value: '10TH' },
-                { label: '12TH', value: '12TH' },
-                { label: 'Diploma', value: 'Diploma' },
-                { label: 'ITI', value: 'ITI' },
-                { label: 'Graduate', value: 'Graduate' },
-                { label: 'B.Tech/B.E', value: 'B.Tech' },
-                { label: 'Post Graduate', value: 'PG' },
-              ],
+              options: EDUCATION_LEVELS,
             },
           ],
         },

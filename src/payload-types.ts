@@ -72,6 +72,7 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    jobs: Job;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -94,6 +95,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    jobs: JobsSelect<false> | JobsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -420,8 +422,72 @@ export interface User {
   id: number;
   name: string;
   roles: ('superadmin' | 'admin' | 'candidate')[];
-  statePreference?: ('AP' | 'AS' | 'BR' | 'CG' | 'DL' | 'GJ' | 'TS' | 'UP' | 'WB') | null;
-  educationLevel?: ('10TH' | '12TH' | 'Diploma' | 'Graduate' | 'B.Tech' | 'PG') | null;
+  qualification?:
+    | (
+        | '8TH'
+        | '10TH'
+        | '12TH'
+        | 'ITI'
+        | 'Diploma'
+        | 'Graduate'
+        | 'PG'
+        | 'PhD'
+        | 'B.Tech'
+        | 'M.Tech'
+        | 'MBBS'
+        | 'BDS'
+        | 'CA_ICWA'
+        | 'LLB'
+        | 'LLM'
+        | 'B.Ed'
+        | 'M.Ed'
+        | 'B.Pharm'
+        | 'M.Pharm'
+        | 'B.Sc_Nursing'
+        | 'M.Sc_Nursing'
+      )[]
+    | null;
+  domicileState?:
+    | (
+        | 'AP'
+        | 'AR'
+        | 'AS'
+        | 'BR'
+        | 'CG'
+        | 'GA'
+        | 'GJ'
+        | 'HR'
+        | 'HP'
+        | 'JH'
+        | 'KA'
+        | 'KL'
+        | 'MP'
+        | 'MH'
+        | 'MN'
+        | 'ML'
+        | 'MZ'
+        | 'NL'
+        | 'OD'
+        | 'PB'
+        | 'RJ'
+        | 'SK'
+        | 'TN'
+        | 'TS'
+        | 'TR'
+        | 'UP'
+        | 'UK'
+        | 'WB'
+        | 'AN'
+        | 'CH'
+        | 'DN'
+        | 'DL'
+        | 'JK'
+        | 'LA'
+        | 'LD'
+        | 'PY'
+        | 'AI'
+      )
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -784,6 +850,125 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs".
+ */
+export interface Job {
+  id: number;
+  postDate: string;
+  recruitmentBoard: string;
+  postName: string;
+  advtNo?: string | null;
+  totalVacancies?: number | null;
+  lastDate: string;
+  category?:
+    | (
+        | 'bank'
+        | 'teaching'
+        | 'engineering'
+        | 'railway'
+        | 'police'
+        | 'ssc'
+        | 'upsc'
+        | 'state_psc'
+        | 'psu'
+        | 'judiciary'
+        | 'medical'
+        | 'research'
+        | 'agriculture'
+        | 'sports'
+        | 'other'
+      )[]
+    | null;
+  state?:
+    | (
+        | 'AP'
+        | 'AR'
+        | 'AS'
+        | 'BR'
+        | 'CG'
+        | 'GA'
+        | 'GJ'
+        | 'HR'
+        | 'HP'
+        | 'JH'
+        | 'KA'
+        | 'KL'
+        | 'MP'
+        | 'MH'
+        | 'MN'
+        | 'ML'
+        | 'MZ'
+        | 'NL'
+        | 'OD'
+        | 'PB'
+        | 'RJ'
+        | 'SK'
+        | 'TN'
+        | 'TS'
+        | 'TR'
+        | 'UP'
+        | 'UK'
+        | 'WB'
+        | 'AN'
+        | 'CH'
+        | 'DN'
+        | 'DL'
+        | 'JK'
+        | 'LA'
+        | 'LD'
+        | 'PY'
+        | 'AI'
+      )
+    | null;
+  education?:
+    | (
+        | '8TH'
+        | '10TH'
+        | '12TH'
+        | 'ITI'
+        | 'Diploma'
+        | 'Graduate'
+        | 'PG'
+        | 'PhD'
+        | 'B.Tech'
+        | 'M.Tech'
+        | 'MBBS'
+        | 'BDS'
+        | 'CA_ICWA'
+        | 'LLB'
+        | 'LLM'
+        | 'B.Ed'
+        | 'M.Ed'
+        | 'B.Pharm'
+        | 'M.Pharm'
+        | 'B.Sc_Nursing'
+        | 'M.Sc_Nursing'
+      )[]
+    | null;
+  aiSummary?: string | null;
+  eligibilityDetails?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  salaryStipend?: string | null;
+  applyLink?: string | null;
+  officialNotification?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -991,6 +1176,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'jobs';
+        value: number | Job;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1341,8 +1530,8 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
-  statePreference?: T;
-  educationLevel?: T;
+  qualification?: T;
+  domicileState?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1359,6 +1548,28 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "jobs_select".
+ */
+export interface JobsSelect<T extends boolean = true> {
+  postDate?: T;
+  recruitmentBoard?: T;
+  postName?: T;
+  advtNo?: T;
+  totalVacancies?: T;
+  lastDate?: T;
+  category?: T;
+  state?: T;
+  education?: T;
+  aiSummary?: T;
+  eligibilityDetails?: T;
+  salaryStipend?: T;
+  applyLink?: T;
+  officialNotification?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

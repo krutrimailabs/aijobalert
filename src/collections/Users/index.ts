@@ -1,26 +1,23 @@
-import type { CollectionConfig } from 'payload'
-// We will use these access functions to handle our 3 goals
-import { authenticated } from '../../access/authenticated'
+import { CollectionConfig, Access } from 'payload'
+import { EDUCATION_LEVELS, INDIAN_STATES } from '../../lib/constants'
+
+const isAdminOrSelf: Access = ({ req: { user } }) => {
+  if (user?.roles?.includes('superadmin') || user?.roles?.includes('admin')) return true
+  if (user) return { id: { equals: user?.id } }
+  return false
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true, // 🔐 Enables login/password
-  admin: {
-    useAsTitle: 'name',
-    defaultColumns: ['name', 'email', 'roles'],
-  },
+  auth: true,
   access: {
-    // We will refine these once we've tested the fields!
-    read: authenticated,
-    update: authenticated,
-    delete: authenticated,
+    read: isAdminOrSelf,
+    update: isAdminOrSelf,
+    create: () => true, // Anyone can sign up
+    delete: ({ req: { user } }) => Boolean(user?.roles?.includes('superadmin')),
   },
   fields: [
-    {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
+    { name: 'name', type: 'text', required: true },
     {
       name: 'roles',
       type: 'select',
@@ -33,17 +30,22 @@ export const Users: CollectionConfig = {
         { label: 'Candidate', value: 'candidate' },
       ],
     },
-    // 👤 Candidate Profiling Fields (For personalized job alerts)
+    // Add these fields to the user so they can "profile" themselves
     {
-      name: 'statePreference',
+      name: 'qualification',
       type: 'select',
-      options: ['AP', 'AS', 'BR', 'CG', 'DL', 'GJ', 'TS', 'UP', 'WB'], 
+      hasMany: true,
+      options: EDUCATION_LEVELS,
     },
     {
-      name: 'educationLevel',
+      name: 'domicileState',
       type: 'select',
-      options: ['10TH', '12TH', 'Diploma', 'Graduate', 'B.Tech', 'PG'],
+      options: INDIAN_STATES,
     },
   ],
+  admin: {
+    useAsTitle: 'name',
+    defaultColumns: ['name', 'email', 'roles'],
+  },
   timestamps: true,
 }
