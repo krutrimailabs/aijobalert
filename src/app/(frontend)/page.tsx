@@ -58,7 +58,7 @@ export default async function Home() {
   ])
 
   // Component for the high-density list sections
-  const PortalSection = ({ title, jobs, colorClass, icon }: { title: string, jobs: Job[], colorClass: string, icon?: string }) => (
+  const PortalSection = ({ title, jobs, colorClass }: { title: string, jobs: Job[], colorClass: string }) => (
     <div className="border border-gray-400">
       <div className={`${colorClass} text-white font-bold text-center py-2 text-lg uppercase tracking-wide`}>
         {title}
