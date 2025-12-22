@@ -18,44 +18,66 @@ interface Job {
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const payload = await getPayload({ config })
+  // Initialize empty data
+  let jobNotifications: Job[] = []
+  let admitCards: Job[] = []
+  let results: Job[] = []
+  let answerKeys: Job[] = []
+  let syllabus: Job[] = []
+  let eduNotifications: Job[] = []
+  let latestUpdates: Job[] = []
 
-  // Helper to fetch jobs by status
-  const fetchJobs = async (status: string, limit: number = 20) => {
-    const { docs } = await payload.find({
-      collection: 'jobs',
-      limit,
-      sort: '-updatedAt',
-      where: {
-        status: { equals: status }
+  try {
+    const payload = await getPayload({ config })
+
+    // Helper to fetch jobs by status
+    const fetchJobs = async (status: string, limit: number = 20) => {
+      try {
+        const { docs } = await payload.find({
+          collection: 'jobs',
+          limit,
+          sort: '-updatedAt',
+          where: {
+            status: { equals: status }
+          }
+        })
+        return docs as unknown as Job[]
+      } catch (error) {
+        console.error(`Error fetching jobs for status ${status}:`, error)
+        return []
       }
-    })
-    return docs as unknown as Job[]
-  }
+    }
 
-  // Parallel data fetching for all sections
-  const [
-    jobNotifications,
-    admitCards,
-    results,
-    answerKeys,
-    syllabus,
-    eduNotifications,
-    latestUpdates
-  ] = await Promise.all([
-    fetchJobs('open'),
-    fetchJobs('admit_card'),
-    fetchJobs('result'),
-    fetchJobs('answer_key'),
-    fetchJobs('syllabus'),
-    fetchJobs('edu_notification'),
-    // Fetch generic "New Updates" - essentially anything recently updated across categories
-    payload.find({
-      collection: 'jobs',
-      limit: 15,
-      sort: '-updatedAt',
-    }).then(res => res.docs as unknown as Job[])
-  ])
+    // Parallel data fetching for all sections
+    ;[
+      jobNotifications,
+      admitCards,
+      results,
+      answerKeys,
+      syllabus,
+      eduNotifications,
+      latestUpdates
+    ] = await Promise.all([
+      fetchJobs('open'),
+      fetchJobs('admit_card'),
+      fetchJobs('result'),
+      fetchJobs('answer_key'),
+      fetchJobs('syllabus'),
+      fetchJobs('edu_notification'),
+      // Fetch generic "New Updates" - essentially anything recently updated across categories
+      payload.find({
+        collection: 'jobs',
+        limit: 15,
+        sort: '-updatedAt',
+      }).then(res => res.docs as unknown as Job[]).catch(err => {
+        console.error('Error fetching latest updates:', err)
+        return []
+      })
+    ])
+  } catch (error) {
+    console.error('CRITICAL: Failed to initialize Payload or fetch data (DB likely down):', error)
+    // Fallback is already empty arrays, so the page will simply render empty.
+  }
 
   // Component for the high-density list sections
   const PortalSection = ({ title, jobs, colorClass }: { title: string, jobs: Job[], colorClass: string }) => (
