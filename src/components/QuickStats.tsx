@@ -32,7 +32,7 @@ export function QuickStats() {
           <TrendingUp className="text-blue-300" size={24} />
         </div>
         <div className="text-2xl font-bold text-white">{stats.todayJobs}</div>
-        <div className="text-blue-200 text-sm">Today's Jobs</div>
+        <div className="text-blue-200 text-sm">Today&apos;s Jobs</div>
       </div>
 
       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">

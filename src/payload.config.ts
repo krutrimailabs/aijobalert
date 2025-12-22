@@ -88,8 +88,11 @@ export default buildConfig({
     tasks: [],
   },
 })
-// ✅ 2. ADD THIS AT THE VERY BOTTOM:
+
 import { Config } from './payload-types'
+
 declare module 'payload' {
-  export interface GeneratedTypes extends Config {}
+  export interface GeneratedTypes extends Config {
+    _?: never
+  }
 }

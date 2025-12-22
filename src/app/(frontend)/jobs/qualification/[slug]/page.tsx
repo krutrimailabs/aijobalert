@@ -16,7 +16,7 @@ interface Job {
   salaryStipend?: string
 }
 
-export default async function QualificationJobs({ params }: { params: { slug: string } }) {
+export default async function QualificationJobsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   
   const payload = await getPayload({ config })

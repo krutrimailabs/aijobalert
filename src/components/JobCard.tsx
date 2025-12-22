@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowRight, Clock, MapPin, Briefcase, GraduationCap } from 'lucide-react'
+import { ArrowRight, Clock, MapPin, Briefcase } from 'lucide-react'
 
 interface JobCardProps {
   id: string
@@ -24,7 +24,6 @@ export const JobCard: React.FC<JobCardProps> = ({
   state,
   salaryStipend,
   aiSummary,
-  applyLink,
   advtNo,
 }) => {
   const isExpiringSoon = new Date(lastDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)

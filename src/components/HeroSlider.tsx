@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, ChevronLeft, ChevronRight, Calendar, Clock } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock } from 'lucide-react'
 
 interface Job {
   id: string

@@ -21,10 +21,8 @@ export const SearchHero: React.FC = () => {
     // Priority to State, then Qualification
     if (selectedState) {
        // Convert Title Case to slug-ish (simple lowercase for now as handled in page)
-       const slug = selectedState.toLowerCase().replace(/\s+/g, '-')
-       router.push(`/jobs/state/${slug}`)
+       router.push(`/jobs/state/${selectedState.toLowerCase().replace(/\s+/g, '-')}`)
     } else if (selectedQual) {
-       const slug = selectedQual.toLowerCase().replace(/\./g, '').replace(/\//g, '').replace(/\s+/g, '-') // rough slugify
        // simpler map for known ones
        let qSlug = selectedQual
        if(selectedQual === '10th Pass') qSlug = '10th'

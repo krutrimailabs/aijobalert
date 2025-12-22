@@ -1,4 +1,4 @@
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 import config from '@/payload.config'
 import { JobCard } from '@/components/JobCard'
 
@@ -16,7 +16,7 @@ interface Job {
   salaryStipend?: string
 }
 
-export default async function CategoryJobs({ params }: { params: { slug: string } }) {
+export default async function CategoryJobsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   
   // Mapping simplistic slugs to possible Category values in DB
@@ -26,7 +26,7 @@ export default async function CategoryJobs({ params }: { params: { slug: string 
   const payload = await getPayload({ config })
 
   // Construct query based on slug
-  let whereQuery: any = {}
+  let whereQuery: Where = {}
   
   if (slug === 'railway') whereQuery = { category: { equals: 'Railway' } }
   else if (slug === 'bank') whereQuery = { category: { equals: 'Bank' } }

@@ -76,7 +76,7 @@ export async function generateJobSummary(jobText: string): Promise<string> {
 /**
  * Placeholder for eligibility checking (Future enhancement)
  */
-export async function checkEligibility(userProfile: string, jobRequirements: string): Promise<boolean> {
+export async function generateJobMatchScore(_userProfile: unknown, _jobRequirements: unknown): Promise<number> {
   // TODO: Implement logic to match user profile with job requirements
-  return false 
+  return 85
 }

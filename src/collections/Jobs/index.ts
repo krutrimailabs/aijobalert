@@ -12,14 +12,14 @@ export const Jobs: CollectionConfig = {
     defaultColumns: ['postName', 'recruitmentBoard', 'state', 'lastDate'],
   },
   access: {
-    read: () => true, // 🌍 Public read access
+    read: ({ req: _req }) => true, // 🌍 Public read access
     create: isStaff,
     update: isStaff,
     delete: isStaff,
   },
   hooks: {
     beforeChange: [
-      async ({ data, req, operation }) => {
+      async ({ data, req: _req, operation }) => {
         if (operation === 'create' || (operation === 'update' && !data.aiSummary)) {
           // If we have eligibility details, try to generate a summary
           if (data.eligibilityDetails) {
@@ -61,6 +61,9 @@ export const Jobs: CollectionConfig = {
                 { label: 'Open', value: 'open' },
                 { label: 'Admit Card Out', value: 'admit_card' },
                 { label: 'Result Declared', value: 'result' },
+                { label: 'Answer Key', value: 'answer_key' },
+                { label: 'Syllabus', value: 'syllabus' },
+                { label: 'Education Notification', value: 'edu_notification' },
                 { label: 'Closed', value: 'closed' },
               ],
               admin: { position: 'sidebar' },
@@ -86,6 +89,27 @@ export const Jobs: CollectionConfig = {
               type: 'select',
               hasMany: true,
               options: EDUCATION_LEVELS,
+            },
+          ],
+        },
+        {
+          label: 'Value Add',
+          fields: [
+            { name: 'applicationFee', type: 'richText' },
+            { name: 'selectionProcess', type: 'richText' },
+            { 
+               name: 'importantLinks', 
+               type: 'array',
+               fields: [
+                  { name: 'label', type: 'text', required: true },
+                  { name: 'url', type: 'text', required: true },
+               ] 
+            },
+            {
+              name: 'shortNotification',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Short Notice (Fast Read)',
             },
           ],
         },

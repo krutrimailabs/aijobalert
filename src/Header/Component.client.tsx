@@ -1,7 +1,6 @@
 'use client'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import { Logo } from '@/components/Logo/Logo'
 import { Menu, X, ChevronDown, Bell } from 'lucide-react'
 
 // Hardcoded navigation structure for immediate utility
@@ -39,7 +38,8 @@ const NAV_ITEMS = [
   },
 ]
 
-export const HeaderClient: React.FC<any> = () => {
+export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ headerPromise }) => {
+  const _header = React.use(headerPromise)
   const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 

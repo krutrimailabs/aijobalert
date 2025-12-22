@@ -860,7 +860,7 @@ export interface Job {
   advtNo?: string | null;
   totalVacancies?: number | null;
   lastDate: string;
-  status?: ('open' | 'admit_card' | 'result' | 'closed') | null;
+  status?: ('open' | 'admit_card' | 'result' | 'answer_key' | 'syllabus' | 'edu_notification' | 'closed') | null;
   category?:
     | (
         | 'bank'
@@ -946,6 +946,44 @@ export interface Job {
         | 'M.Sc_Nursing'
       )[]
     | null;
+  applicationFee?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  selectionProcess?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  importantLinks?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  shortNotification?: (number | null) | Media;
   aiSummary?: string | null;
   eligibilityDetails?: {
     root: {
@@ -1565,6 +1603,16 @@ export interface JobsSelect<T extends boolean = true> {
   category?: T;
   state?: T;
   education?: T;
+  applicationFee?: T;
+  selectionProcess?: T;
+  importantLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  shortNotification?: T;
   aiSummary?: T;
   eligibilityDetails?: T;
   salaryStipend?: T;

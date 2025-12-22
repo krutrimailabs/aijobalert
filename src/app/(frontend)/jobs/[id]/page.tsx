@@ -6,6 +6,8 @@ import React from 'react'
 import { ArrowLeft, Calendar, MapPin, Briefcase, CheckCircle, Clock, Globe } from 'lucide-react'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 
+import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
+
 export const dynamic = 'force-dynamic'
 
 interface Job {
@@ -18,7 +20,7 @@ interface Job {
   state?: string
   salaryStipend?: string
   aiSummary?: string
-  eligibilityDetails?: any // RichText content
+  eligibilityDetails?: SerializedEditorState
   applyLink: string
   officialNotification?: {
     url: string
@@ -26,7 +28,7 @@ interface Job {
   }
 }
 
-export default async function JobPost({ params }: { params: { id: string } }) {
+export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
   const payload = await getPayload({ config })

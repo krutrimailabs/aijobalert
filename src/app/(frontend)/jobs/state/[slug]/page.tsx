@@ -1,7 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { JobCard } from '@/components/JobCard'
-import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +16,7 @@ interface Job {
   salaryStipend?: string
 }
 
-export default async function StateJobs({ params }: { params: { slug: string } }) {
+export default async function StateJobsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   
   // Format slug to readable name if needed, or query directly if values match
@@ -56,6 +55,7 @@ export default async function StateJobs({ params }: { params: { slug: string } }
           <h1 className="text-3xl font-bold text-slate-900 mt-3">
              Jobs in {title}
           </h1>
+            <p className="text-gray-600">Browse the latest government job notifications for {title}. We&apos;ve curated the best opportunities for you.</p>
           <p className="text-slate-500 mt-2">
             Viewing {jobs.length} active notifications for {title}.
           </p>
@@ -81,7 +81,7 @@ export default async function StateJobs({ params }: { params: { slug: string } }
         {jobs.length === 0 && (
            <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-300">
               <p className="text-lg text-slate-500">No active jobs found for {title}.</p>
-              <p className="text-sm text-slate-400 mt-2">Try checking "All States" or browse latest jobs.</p>
+              <p className="text-sm text-slate-400 mt-2">Try checking &quot;All States&quot; or browse latest jobs.</p>
            </div>
         )}
       </div>

@@ -3,6 +3,7 @@ import * as migration_20251221_203612_update_user_schema from './20251221_203612
 import * as migration_20251221_213026_update_enums from './20251221_213026_update_enums';
 import * as migration_20251221_213257_update_enums from './20251221_213257_update_enums';
 import * as migration_20251221_220229_add_status_to_jobs from './20251221_220229_add_status_to_jobs';
+import * as migration_20251221_230153_add_rich_fields_to_jobs from './20251221_230153_add_rich_fields_to_jobs';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20251221_220229_add_status_to_jobs.up,
     down: migration_20251221_220229_add_status_to_jobs.down,
-    name: '20251221_220229_add_status_to_jobs'
+    name: '20251221_220229_add_status_to_jobs',
+  },
+  {
+    up: migration_20251221_230153_add_rich_fields_to_jobs.up,
+    down: migration_20251221_230153_add_rich_fields_to_jobs.down,
+    name: '20251221_230153_add_rich_fields_to_jobs'
   },
 ];

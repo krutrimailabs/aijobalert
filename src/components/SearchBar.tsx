@@ -1,6 +1,6 @@
 'use client'
 
-import { Search, Filter, MapPin, GraduationCap } from 'lucide-react'
+import { Search, Filter } from 'lucide-react'
 import { useState } from 'react'
 
 export function SearchBar() {
