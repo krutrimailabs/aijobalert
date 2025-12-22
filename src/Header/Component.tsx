@@ -5,7 +5,14 @@ import React from 'react'
 import type { Header } from '@/payload-types'
 
 export async function Header() {
-  const headerData: Header = await getCachedGlobal('header', 1)()
+  let headerData: Header | null = null
 
-  return <HeaderClient headerPromise={Promise.resolve(headerData)} />
+  try {
+    headerData = await getCachedGlobal('header', 1)()
+  } catch (error) {
+    console.error('Failed to fetch Header data (DB likely down):', error)
+    // headerData remains null
+  }
+
+  return <HeaderClient headerPromise={Promise.resolve(headerData as Header)} />
 }

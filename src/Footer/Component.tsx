@@ -9,7 +9,13 @@ import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 
 export async function Footer() {
-  const footerData: Footer = await getCachedGlobal('footer', 1)()
+  let footerData: Footer | null = null
+
+  try {
+    footerData = await getCachedGlobal('footer', 1)()
+  } catch (error) {
+    console.error('Failed to fetch Footer data (DB likely down):', error)
+  }
 
   const navItems = footerData?.navItems || []
 
