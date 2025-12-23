@@ -67,7 +67,6 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    pages: Page;
     posts: Post;
     media: Media;
     categories: Category;
@@ -90,7 +89,6 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -114,10 +112,14 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    siteSettings: SiteSetting;
+    seoSettings: SeoSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    seoSettings: SeoSettingsSelect<false> | SeoSettingsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -151,75 +153,6 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
- */
-export interface Page {
-  id: number;
-  title: string;
-  hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
-    richText?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: number | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: number | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    media?: (number | null) | Media;
-  };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -508,10 +441,134 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock".
+ * via the `definition` "jobs".
  */
-export interface CallToActionBlock {
-  richText?: {
+export interface Job {
+  id: number;
+  postDate: string;
+  recruitmentBoard: string;
+  postName: string;
+  advtNo?: string | null;
+  totalVacancies?: number | null;
+  lastDate: string;
+  status?: ('open' | 'admit_card' | 'result' | 'answer_key' | 'syllabus' | 'edu_notification' | 'closed') | null;
+  category?:
+    | (
+        | 'bank'
+        | 'teaching'
+        | 'engineering'
+        | 'railway'
+        | 'police'
+        | 'ssc'
+        | 'upsc'
+        | 'state_psc'
+        | 'psu'
+        | 'judiciary'
+        | 'medical'
+        | 'research'
+        | 'agriculture'
+        | 'sports'
+        | 'other'
+      )[]
+    | null;
+  state?:
+    | (
+        | 'AP'
+        | 'AR'
+        | 'AS'
+        | 'BR'
+        | 'CG'
+        | 'GA'
+        | 'GJ'
+        | 'HR'
+        | 'HP'
+        | 'JH'
+        | 'KA'
+        | 'KL'
+        | 'MP'
+        | 'MH'
+        | 'MN'
+        | 'ML'
+        | 'MZ'
+        | 'NL'
+        | 'OD'
+        | 'PB'
+        | 'RJ'
+        | 'SK'
+        | 'TN'
+        | 'TS'
+        | 'TR'
+        | 'UP'
+        | 'UK'
+        | 'WB'
+        | 'AN'
+        | 'CH'
+        | 'DN'
+        | 'DL'
+        | 'JK'
+        | 'LA'
+        | 'LD'
+        | 'PY'
+        | 'AI'
+      )
+    | null;
+  education?:
+    | (
+        | '8TH'
+        | '10TH'
+        | '12TH'
+        | 'ITI'
+        | 'Diploma'
+        | 'Graduate'
+        | 'PG'
+        | 'PhD'
+        | 'B.Tech'
+        | 'M.Tech'
+        | 'MBBS'
+        | 'BDS'
+        | 'CA_ICWA'
+        | 'LLB'
+        | 'LLM'
+        | 'B.Ed'
+        | 'M.Ed'
+        | 'B.Pharm'
+        | 'M.Pharm'
+        | 'B.Sc_Nursing'
+        | 'M.Sc_Nursing'
+      )[]
+    | null;
+  /**
+   * When applications open (if different from post date)
+   */
+  applicationStartDate?: string | null;
+  /**
+   * Scheduled exam/test date
+   */
+  examDate?: string | null;
+  /**
+   * When admit cards will be released
+   */
+  admitCardDate?: string | null;
+  /**
+   * Expected result declaration date
+   */
+  resultDate?: string | null;
+  /**
+   * Reference date for age calculation (e.g., "as on 01-08-2025")
+   */
+  ageCalculationDate?: string | null;
+  /**
+   * Minimum age requirement in years
+   */
+  minimumAge?: number | null;
+  /**
+   * Maximum age requirement in years
+   */
+  maximumAge?: number | null;
+  /**
+   * Age relaxation details for SC/ST/OBC/PWD/Ex-servicemen
+   */
+  ageRelaxation?: {
     root: {
       type: string;
       children: {
@@ -526,100 +583,162 @@ export interface CallToActionBlock {
     };
     [k: string]: unknown;
   } | null;
-  links?:
+  /**
+   * Height, weight, chest, and other physical requirements
+   */
+  physicalStandards?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Application fee for General/UR category (e.g., "Rs. 159/-")
+   */
+  feeGeneral?: string | null;
+  /**
+   * Application fee for OBC category
+   */
+  feeOBC?: string | null;
+  /**
+   * Application fee for SC category
+   */
+  feeSC?: string | null;
+  /**
+   * Application fee for ST category
+   */
+  feeST?: string | null;
+  /**
+   * List exemptions (e.g., "Female, PWD, Ex-servicemen")
+   */
+  feeExemptions?: string | null;
+  /**
+   * Accepted payment methods (e.g., "Online via Credit Card, Debit Card, Net Banking")
+   */
+  paymentModes?: string | null;
+  /**
+   * Detailed category/post/gender-wise vacancy breakdown table
+   */
+  vacancyBreakdown?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * SC/ST/OBC/EWS reservation information
+   */
+  reservationDetails?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Step-by-step application instructions
+   */
+  applicationProcess?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * List of documents required for application
+   */
+  requiredDocuments?:
     | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
+        /**
+         * Name of the document (e.g., "10th Marksheet")
+         */
+        documentName: string;
+        /**
+         * Additional details about the document
+         */
+        description?: string | null;
+        /**
+         * Is this document mandatory?
+         */
+        mandatory?: boolean | null;
         id?: string | null;
       }[]
     | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'cta';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentBlock".
- */
-export interface ContentBlock {
-  columns?:
+  applicationFee?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  selectionProcess?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  importantLinks?:
     | {
-        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
-        richText?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        enableLink?: boolean | null;
-        link?: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
+        label: string;
+        url: string;
         id?: string | null;
       }[]
     | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'content';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
- */
-export interface MediaBlock {
-  media: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveBlock".
- */
-export interface ArchiveBlock {
-  introContent?: {
+  shortNotification?: (number | null) | Media;
+  aiSummary?: string | null;
+  eligibilityDetails?: {
     root: {
       type: string;
       children: {
@@ -634,45 +753,32 @@ export interface ArchiveBlock {
     };
     [k: string]: unknown;
   } | null;
-  populateBy?: ('collection' | 'selection') | null;
-  relationTo?: 'posts' | null;
-  categories?: (number | Category)[] | null;
-  limit?: number | null;
-  selectedDocs?:
-    | {
-        relationTo: 'posts';
-        value: number | Post;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'archive';
+  salaryStipend?: string | null;
+  applyLink?: string | null;
+  officialNotification?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock".
+ * via the `definition` "redirects".
  */
-export interface FormBlock {
-  form: number | Form;
-  enableIntro?: boolean | null;
-  introContent?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'formBlock';
+export interface Redirect {
+  id: number;
+  /**
+   * You will need to rebuild the website when changing this field.
+   */
+  from: string;
+  to?: {
+    type?: ('reference' | 'custom') | null;
+    reference?: {
+      relationTo: 'posts';
+      value: number | Post;
+    } | null;
+    url?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -850,190 +956,6 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "jobs".
- */
-export interface Job {
-  id: number;
-  postDate: string;
-  recruitmentBoard: string;
-  postName: string;
-  advtNo?: string | null;
-  totalVacancies?: number | null;
-  lastDate: string;
-  status?: ('open' | 'admit_card' | 'result' | 'answer_key' | 'syllabus' | 'edu_notification' | 'closed') | null;
-  category?:
-    | (
-        | 'bank'
-        | 'teaching'
-        | 'engineering'
-        | 'railway'
-        | 'police'
-        | 'ssc'
-        | 'upsc'
-        | 'state_psc'
-        | 'psu'
-        | 'judiciary'
-        | 'medical'
-        | 'research'
-        | 'agriculture'
-        | 'sports'
-        | 'other'
-      )[]
-    | null;
-  state?:
-    | (
-        | 'AP'
-        | 'AR'
-        | 'AS'
-        | 'BR'
-        | 'CG'
-        | 'GA'
-        | 'GJ'
-        | 'HR'
-        | 'HP'
-        | 'JH'
-        | 'KA'
-        | 'KL'
-        | 'MP'
-        | 'MH'
-        | 'MN'
-        | 'ML'
-        | 'MZ'
-        | 'NL'
-        | 'OD'
-        | 'PB'
-        | 'RJ'
-        | 'SK'
-        | 'TN'
-        | 'TS'
-        | 'TR'
-        | 'UP'
-        | 'UK'
-        | 'WB'
-        | 'AN'
-        | 'CH'
-        | 'DN'
-        | 'DL'
-        | 'JK'
-        | 'LA'
-        | 'LD'
-        | 'PY'
-        | 'AI'
-      )
-    | null;
-  education?:
-    | (
-        | '8TH'
-        | '10TH'
-        | '12TH'
-        | 'ITI'
-        | 'Diploma'
-        | 'Graduate'
-        | 'PG'
-        | 'PhD'
-        | 'B.Tech'
-        | 'M.Tech'
-        | 'MBBS'
-        | 'BDS'
-        | 'CA_ICWA'
-        | 'LLB'
-        | 'LLM'
-        | 'B.Ed'
-        | 'M.Ed'
-        | 'B.Pharm'
-        | 'M.Pharm'
-        | 'B.Sc_Nursing'
-        | 'M.Sc_Nursing'
-      )[]
-    | null;
-  applicationFee?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  selectionProcess?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  importantLinks?:
-    | {
-        label: string;
-        url: string;
-        id?: string | null;
-      }[]
-    | null;
-  shortNotification?: (number | null) | Media;
-  aiSummary?: string | null;
-  eligibilityDetails?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  salaryStipend?: string | null;
-  applyLink?: string | null;
-  officialNotification?: (number | null) | Media;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redirects".
- */
-export interface Redirect {
-  id: number;
-  /**
-   * You will need to rebuild the website when changing this field.
-   */
-  from: string;
-  to?: {
-    type?: ('reference' | 'custom') | null;
-    reference?:
-      | ({
-          relationTo: 'pages';
-          value: number | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: number | Post;
-        } | null);
-    url?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -1197,10 +1119,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'pages';
-        value: number | Page;
-      } | null)
-    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -1281,141 +1199,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  title?: T;
-  hero?:
-    | T
-    | {
-        type?: T;
-        richText?: T;
-        links?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                    appearance?: T;
-                  };
-              id?: T;
-            };
-        media?: T;
-      };
-  layout?:
-    | T
-    | {
-        cta?: T | CallToActionBlockSelect<T>;
-        content?: T | ContentBlockSelect<T>;
-        mediaBlock?: T | MediaBlockSelect<T>;
-        archive?: T | ArchiveBlockSelect<T>;
-        formBlock?: T | FormBlockSelect<T>;
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  publishedAt?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CallToActionBlock_select".
- */
-export interface CallToActionBlockSelect<T extends boolean = true> {
-  richText?: T;
-  links?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              appearance?: T;
-            };
-        id?: T;
-      };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentBlock_select".
- */
-export interface ContentBlockSelect<T extends boolean = true> {
-  columns?:
-    | T
-    | {
-        size?: T;
-        richText?: T;
-        enableLink?: T;
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-              appearance?: T;
-            };
-        id?: T;
-      };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock_select".
- */
-export interface MediaBlockSelect<T extends boolean = true> {
-  media?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ArchiveBlock_select".
- */
-export interface ArchiveBlockSelect<T extends boolean = true> {
-  introContent?: T;
-  populateBy?: T;
-  relationTo?: T;
-  categories?: T;
-  limit?: T;
-  selectedDocs?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FormBlock_select".
- */
-export interface FormBlockSelect<T extends boolean = true> {
-  form?: T;
-  enableIntro?: T;
-  introContent?: T;
-  id?: T;
-  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1603,6 +1386,32 @@ export interface JobsSelect<T extends boolean = true> {
   category?: T;
   state?: T;
   education?: T;
+  applicationStartDate?: T;
+  examDate?: T;
+  admitCardDate?: T;
+  resultDate?: T;
+  ageCalculationDate?: T;
+  minimumAge?: T;
+  maximumAge?: T;
+  ageRelaxation?: T;
+  physicalStandards?: T;
+  feeGeneral?: T;
+  feeOBC?: T;
+  feeSC?: T;
+  feeST?: T;
+  feeExemptions?: T;
+  paymentModes?: T;
+  vacancyBreakdown?: T;
+  reservationDetails?: T;
+  applicationProcess?: T;
+  requiredDocuments?:
+    | T
+    | {
+        documentName?: T;
+        description?: T;
+        mandatory?: T;
+        id?: T;
+      };
   applicationFee?: T;
   selectionProcess?: T;
   importantLinks?:
@@ -1907,15 +1716,10 @@ export interface Header {
         link: {
           type?: ('reference' | 'custom') | null;
           newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
+          reference?: {
+            relationTo: 'posts';
+            value: number | Post;
+          } | null;
           url?: string | null;
           label: string;
         };
@@ -1931,26 +1735,76 @@ export interface Header {
  */
 export interface Footer {
   id: number;
-  navItems?:
+  columns?:
     | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
+        title: string;
+        links?:
+          | {
+              label: string;
+              href: string;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
+  copyrightText?: string | null;
+  disclaimer?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteSettings".
+ */
+export interface SiteSetting {
+  id: number;
+  siteName: string;
+  tagline?: string | null;
+  logo?: (number | null) | Media;
+  telegramLink?: string | null;
+  whatsappLink?: string | null;
+  twitterLink?: string | null;
+  facebookLink?: string | null;
+  instagramLink?: string | null;
+  youtubeLink?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  address?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seoSettings".
+ */
+export interface SeoSetting {
+  id: number;
+  defaultTitle?: string | null;
+  defaultDescription?: string | null;
+  defaultOGImage?: (number | null) | Media;
+  /**
+   * Comma-separated keywords
+   */
+  keywords?: string | null;
+  /**
+   * e.g., @aijobalert
+   */
+  twitterHandle?: string | null;
+  facebookAppId?: string | null;
+  /**
+   * e.g., G-XXXXXXXXXX
+   */
+  googleAnalyticsId?: string | null;
+  googleSiteVerification?: string | null;
+  googleAdsenseId?: string | null;
+  jobsSEO?: {
+    /**
+     * Use {postName}, {organization}, {lastDate}
+     */
+    titleTemplate?: string | null;
+    descriptionTemplate?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1982,19 +1836,65 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
-  navItems?:
+  columns?:
     | T
     | {
-        link?:
+        title?: T;
+        links?:
           | T
           | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
               label?: T;
+              href?: T;
+              id?: T;
             };
         id?: T;
+      };
+  copyrightText?: T;
+  disclaimer?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "siteSettings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  siteName?: T;
+  tagline?: T;
+  logo?: T;
+  telegramLink?: T;
+  whatsappLink?: T;
+  twitterLink?: T;
+  facebookLink?: T;
+  instagramLink?: T;
+  youtubeLink?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  address?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seoSettings_select".
+ */
+export interface SeoSettingsSelect<T extends boolean = true> {
+  defaultTitle?: T;
+  defaultDescription?: T;
+  defaultOGImage?: T;
+  keywords?: T;
+  twitterHandle?: T;
+  facebookAppId?: T;
+  googleAnalyticsId?: T;
+  googleSiteVerification?: T;
+  googleAdsenseId?: T;
+  jobsSEO?:
+    | T
+    | {
+        titleTemplate?: T;
+        descriptionTemplate?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2008,15 +1908,10 @@ export interface TaskSchedulePublish {
   input: {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
-    doc?:
-      | ({
-          relationTo: 'pages';
-          value: number | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: number | Post;
-        } | null);
+    doc?: {
+      relationTo: 'posts';
+      value: number | Post;
+    } | null;
     global?: string | null;
     user?: (number | null) | User;
   };
@@ -2057,6 +1952,16 @@ export interface CodeBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'code';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

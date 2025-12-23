@@ -1,22 +1,56 @@
 'use client'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import { Menu, X, Search, FileText } from 'lucide-react'
+import { Menu, X, Search, FileText, ChevronDown } from 'lucide-react'
+import { JOB_CATEGORIES, EDUCATION_LEVELS, INDIAN_STATES } from '@/lib/constants'
 
-// Updated Navigation Items for "Sarkari Portal" style
-const NAV_ITEMS = [
+// Navigation structure with dropdowns
+interface NavItem {
+  label: string
+  href?: string
+  dropdown?: Array<{ label: string; href: string }>
+}
+
+const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Latest Jobs', href: '/jobs' },
-  { label: 'Result', href: '/jobs?status=result' },
-  { label: 'Admit Card', href: '/jobs?status=admit_card' },
-  { label: 'Answer Key', href: '/jobs?status=answer_key' },
-  { label: 'Syllabus', href: '/jobs?status=syllabus' },
-  { label: 'Contact Us', href: '#' },
+  {
+    label: 'Jobs by Category',
+    dropdown: JOB_CATEGORIES.map((cat) => ({
+      label: cat.label,
+      href: `/jobs/category/${cat.value}`,
+    })),
+  },
+  {
+    label: 'Jobs by Qualification',
+    dropdown: EDUCATION_LEVELS.slice(0, 12).map((edu) => ({
+      label: edu.label,
+      href: `/jobs/qualification/${edu.value}`,
+    })),
+  },
+  {
+    label: 'Jobs by State',
+    dropdown: INDIAN_STATES.map((state) => ({
+      label: state.label,
+      href: `/jobs/state/${state.value}`,
+    })),
+  },
+  { label: 'Result', href: '/results' },
+  { label: 'Admit Card', href: '/admit-cards' },
+  { label: 'Answer Key', href: '/answer-keys' },
+  { label: 'Syllabus', href: '/syllabus' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Contact Us', href: '/contact' },
 ]
 
 export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ headerPromise }) => {
   const _header = React.use(headerPromise)
   const [isOpen, setIsOpen] = useState(false)
+  const [expandedMenu, setExpandedMenu] = useState<string | null>(null)
+
+  const toggleExpanded = (label: string) => {
+    setExpandedMenu(expandedMenu === label ? null : label)
+  }
 
   return (
     <>
@@ -81,15 +115,36 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
         {/* Main Navigation Bar (Desktop) */}
         <nav className="hidden lg:block bg-blue-800 text-white shadow-lg">
           <div className="max-w-7xl mx-auto px-2">
-            <ul className="flex items-center justify-center text-sm font-bold whitespace-nowrap">
+            <ul className="flex items-center justify-start text-xs font-bold whitespace-nowrap">
               {NAV_ITEMS.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="block px-6 py-3 hover:bg-blue-900 transition-colors uppercase tracking-wide"
-                  >
-                    {item.label}
-                  </Link>
+                <li key={item.label} className="relative group">
+                  {item.dropdown ? (
+                    <>
+                      <button className="flex items-center gap-1 px-3 py-3 hover:bg-blue-900 transition-colors uppercase tracking-wide">
+                        {item.label}
+                        <ChevronDown className="w-3 h-3" />
+                      </button>
+                      {/* Dropdown Menu */}
+                      <div className="absolute left-0 top-full hidden group-hover:block bg-white text-gray-800 shadow-xl rounded-b-lg min-w-[220px] max-h-[400px] overflow-y-auto z-50">
+                        {item.dropdown.map((subItem) => (
+                          <Link
+                            key={subItem.href}
+                            href={subItem.href}
+                            className="block px-4 py-2 hover:bg-blue-50 hover:text-blue-700 transition-colors text-sm font-medium border-b border-gray-100 last:border-b-0"
+                          >
+                            {subItem.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href!}
+                      className="block px-3 py-3 hover:bg-blue-900 transition-colors uppercase tracking-wide"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -118,14 +173,45 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
 
               <nav className="flex flex-col space-y-1">
                 {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="block px-4 py-3 text-slate-800 font-semibold border-b border-gray-50 hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
+                  <div key={item.label}>
+                    {item.dropdown ? (
+                      <>
+                        <button
+                          className="w-full flex items-center justify-between px-4 py-3 text-slate-800 font-semibold border-b border-gray-50 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                          onClick={() => toggleExpanded(item.label)}
+                        >
+                          <span>{item.label}</span>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform ${
+                              expandedMenu === item.label ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+                        {expandedMenu === item.label && (
+                          <div className="bg-gray-50 pl-4">
+                            {item.dropdown.map((subItem) => (
+                              <Link
+                                key={subItem.href}
+                                href={subItem.href}
+                                className="block px-4 py-2 text-sm text-slate-700 hover:text-blue-700 hover:bg-blue-50 transition-colors border-b border-gray-100"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                {subItem.label}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Link
+                        href={item.href!}
+                        className="block px-4 py-3 text-slate-800 font-semibold border-b border-gray-50 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </div>
                 ))}
                 <a
                   href="https://t.me/aijobalert"

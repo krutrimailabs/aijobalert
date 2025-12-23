@@ -2,7 +2,7 @@ import { CollectionConfig, Access } from 'payload'
 import { JOB_CATEGORIES, INDIAN_STATES, EDUCATION_LEVELS } from '../../lib/constants'
 import { generateJobSummary } from '../../lib/ai-service'
 
-const isStaff: Access = ({ req: { user } }) => 
+const isStaff: Access = ({ req: { user } }) =>
   Boolean(user?.roles?.some((role: string) => ['admin', 'superadmin'].includes(role)))
 
 export const Jobs: CollectionConfig = {
@@ -93,17 +93,201 @@ export const Jobs: CollectionConfig = {
           ],
         },
         {
+          label: 'Important Dates',
+          fields: [
+            {
+              name: 'applicationStartDate',
+              type: 'date',
+              admin: {
+                description: 'When applications open (if different from post date)',
+              },
+            },
+            {
+              name: 'examDate',
+              type: 'date',
+              admin: {
+                description: 'Scheduled exam/test date',
+              },
+            },
+            {
+              name: 'admitCardDate',
+              type: 'date',
+              admin: {
+                description: 'When admit cards will be released',
+              },
+            },
+            {
+              name: 'resultDate',
+              type: 'date',
+              admin: {
+                description: 'Expected result declaration date',
+              },
+            },
+            {
+              name: 'ageCalculationDate',
+              type: 'date',
+              admin: {
+                description: 'Reference date for age calculation (e.g., "as on 01-08-2025")',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Eligibility & Requirements',
+          fields: [
+            {
+              name: 'minimumAge',
+              type: 'number',
+              admin: {
+                description: 'Minimum age requirement in years',
+              },
+            },
+            {
+              name: 'maximumAge',
+              type: 'number',
+              admin: {
+                description: 'Maximum age requirement in years',
+              },
+            },
+            {
+              name: 'ageRelaxation',
+              type: 'richText',
+              admin: {
+                description: 'Age relaxation details for SC/ST/OBC/PWD/Ex-servicemen',
+              },
+            },
+            {
+              name: 'physicalStandards',
+              type: 'richText',
+              admin: {
+                description: 'Height, weight, chest, and other physical requirements',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Fee & Payment',
+          fields: [
+            {
+              name: 'feeGeneral',
+              type: 'text',
+              admin: {
+                description: 'Application fee for General/UR category (e.g., "Rs. 159/-")',
+              },
+            },
+            {
+              name: 'feeOBC',
+              type: 'text',
+              admin: {
+                description: 'Application fee for OBC category',
+              },
+            },
+            {
+              name: 'feeSC',
+              type: 'text',
+              admin: {
+                description: 'Application fee for SC category',
+              },
+            },
+            {
+              name: 'feeST',
+              type: 'text',
+              admin: {
+                description: 'Application fee for ST category',
+              },
+            },
+            {
+              name: 'feeExemptions',
+              type: 'textarea',
+              admin: {
+                description: 'List exemptions (e.g., "Female, PWD, Ex-servicemen")',
+              },
+            },
+            {
+              name: 'paymentModes',
+              type: 'textarea',
+              admin: {
+                description:
+                  'Accepted payment methods (e.g., "Online via Credit Card, Debit Card, Net Banking")',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Vacancy Details',
+          fields: [
+            {
+              name: 'vacancyBreakdown',
+              type: 'richText',
+              admin: {
+                description: 'Detailed category/post/gender-wise vacancy breakdown table',
+              },
+            },
+            {
+              name: 'reservationDetails',
+              type: 'richText',
+              admin: {
+                description: 'SC/ST/OBC/EWS reservation information',
+              },
+            },
+          ],
+        },
+        {
+          label: 'How to Apply',
+          fields: [
+            {
+              name: 'applicationProcess',
+              type: 'richText',
+              admin: {
+                description: 'Step-by-step application instructions',
+              },
+            },
+            {
+              name: 'requiredDocuments',
+              type: 'array',
+              admin: {
+                description: 'List of documents required for application',
+              },
+              fields: [
+                {
+                  name: 'documentName',
+                  type: 'text',
+                  required: true,
+                  admin: {
+                    description: 'Name of the document (e.g., "10th Marksheet")',
+                  },
+                },
+                {
+                  name: 'description',
+                  type: 'text',
+                  admin: {
+                    description: 'Additional details about the document',
+                  },
+                },
+                {
+                  name: 'mandatory',
+                  type: 'checkbox',
+                  defaultValue: true,
+                  admin: {
+                    description: 'Is this document mandatory?',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
           label: 'Value Add',
           fields: [
             { name: 'applicationFee', type: 'richText' },
             { name: 'selectionProcess', type: 'richText' },
-            { 
-               name: 'importantLinks', 
-               type: 'array',
-               fields: [
-                  { name: 'label', type: 'text', required: true },
-                  { name: 'url', type: 'text', required: true },
-               ] 
+            {
+              name: 'importantLinks',
+              type: 'array',
+              fields: [
+                { name: 'label', type: 'text', required: true },
+                { name: 'url', type: 'text', required: true },
+              ],
             },
             {
               name: 'shortNotification',

@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Mobile-First Base Font Size */
+  html {
+    font-size: 14px; /* Mobile base - smaller for dense layout */
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 15px; /* Tablet */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 16px; /* Desktop - standard */
+    }
+  }
+
+  body {
+    @apply text-slate-900 bg-slate-50;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar for horizontal scroll on mobile */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

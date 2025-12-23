@@ -6,12 +6,14 @@ import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
-import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Jobs } from './collections/Jobs'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { SiteSettings } from './globals/SiteSettings'
+import { Footer as FooterGlobal } from './globals/Footer'
+import { SEOSettings } from './globals/SEOSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -49,7 +51,7 @@ export default buildConfig({
         },
         {
           label: 'Desktop',
-          name: 'desktop',
+          name: ' desktop',
           width: 1440,
           height: 900,
         },
@@ -63,9 +65,9 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Jobs],
+  collections: [Posts, Media, Categories, Users, Jobs],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [Header, Footer, SiteSettings, FooterGlobal, SEOSettings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,
