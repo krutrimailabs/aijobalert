@@ -1,12 +1,18 @@
 import React, { Fragment } from 'react'
 
-import type { Page } from '@/payload-types'
-
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+
+interface RenderBlocksProps {
+  blocks?: Array<
+    {
+      blockType?: keyof typeof blockComponents
+    } & Record<string, unknown>
+  >
+}
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -16,9 +22,7 @@ const blockComponents = {
   mediaBlock: MediaBlock,
 }
 
-export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
-}> = (props) => {
+export const RenderBlocks: React.FC<RenderBlocksProps> = (props) => {
   const { blocks } = props
 
   const hasBlocks = blocks && Array.isArray(blocks) && blocks.length > 0

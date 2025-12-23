@@ -1,9 +1,30 @@
 import React from 'react'
 
-import type { CallToActionBlock as CTABlockProps } from '@/payload-types'
-
 import RichText from '@/components/RichText'
 import { CMSLink } from '@/components/Link'
+import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
+import type { Post } from '@/payload-types'
+
+type CMSLinkType = {
+  appearance?: 'inline' | 'default' | 'outline'
+  children?: React.ReactNode
+  className?: string
+  label?: string | null
+  newTab?: boolean | null
+  reference?: {
+    relationTo: 'posts'
+    value: Post | string | number
+  } | null
+  size?: 'default' | 'sm' | 'lg' | 'icon' | null
+  type?: 'custom' | 'reference' | null
+  url?: string | null
+}
+
+interface CTABlockProps {
+  id?: string
+  links?: Array<{ link: CMSLinkType }>
+  richText?: DefaultTypedEditorState
+}
 
 export const CallToActionBlock: React.FC<CTABlockProps> = ({ links, richText }) => {
   return (
