@@ -14,6 +14,7 @@
   }
 
   :root {
+    color-scheme: light;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -50,6 +51,7 @@
   }
 
   [data-theme='dark'] {
+    color-scheme: dark;
     --background: 0 0% 0%;
     --foreground: 210 40% 98%;
 
@@ -106,14 +108,18 @@ html[data-theme='light'] {
   .animate-marquee {
     animation: marquee 25s linear infinite;
   }
-  
+
   .animate-marquee:hover {
     animation-play-state: paused;
   }
-  
+
   @keyframes marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
   }
 
   /* Hide scrollbar but keep scroll functionality */
@@ -121,7 +127,7 @@ html[data-theme='light'] {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -131,7 +137,7 @@ html[data-theme='light'] {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .overflow-x-auto::-webkit-scrollbar {
     display: none;
   }
