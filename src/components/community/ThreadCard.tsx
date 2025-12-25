@@ -12,17 +12,16 @@ interface ThreadCardProps {
   thread: {
     id: number
     title: string
-    slug?: string | null | undefined
+    slug?: string | null
     content?: unknown
     createdAt: string
-    author?: string | number | { name?: string | null } | null | undefined
-    topic?: string | number | { title?: string | null; slug?: string | null } | null | undefined
-    upvotes?: number | null | undefined
+    author?: string | number | { name?: string } | null
+    topic?: string | number | { title?: string; slug?: string | null } | null
+    upvotes?: number | null
     downvotes?: number | null
     _count?: {
       comments?: number // If we had aggregation, but payload requires relationship lookup usually
     }
-    // Using comment count if available, or just mocking/fetching separate
   }
   currentUserId?: number
 }
@@ -51,7 +50,7 @@ export const ThreadCard: React.FC<ThreadCardProps> = ({ thread, currentUserId })
       : 'General'
   const topicSlug =
     typeof thread.topic === 'object' && thread.topic !== null
-      ? (thread.topic as { slug?: string }).slug
+      ? (thread.topic as { slug?: string | null }).slug
       : 'general'
   const previewText = extractPreview(thread.content)
   const href = thread.slug ? `/community/thread/${thread.slug}` : `/community/thread/${thread.id}`

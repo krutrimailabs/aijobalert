@@ -86,7 +86,7 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
         ...job.structuredRequirements,
         education: [
           {
-            levels: (job.education as string[]).map((edu) => mapQualificationToLevel(edu)),
+            levels: job.education, // Assuming exact match of enum values
             degrees: [],
             streams: [],
           },

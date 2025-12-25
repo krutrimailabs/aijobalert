@@ -16,6 +16,12 @@ export interface PracticeQuestionProps {
   options: Option[]
   explanation?: string
   questionNumber?: number
+  difficulty?: string
+  tags?: string[]
+  marks?: number
+  timeLimit?: number
+  userAnswer?: number
+  onAnswerSelect?: (index: number) => void
 }
 
 export const PracticeQuestionCard: React.FC<PracticeQuestionProps> = ({
@@ -24,16 +30,29 @@ export const PracticeQuestionCard: React.FC<PracticeQuestionProps> = ({
   options,
   explanation,
   questionNumber,
+  difficulty: _difficulty,
+  tags: _tags,
+  marks: _marks,
+  timeLimit: _timeLimit,
+  userAnswer,
+  onAnswerSelect,
 }) => {
-  const [selectedOption, setSelectedOption] = useState<number | null>(null)
+  const [internalSelectedOption, setInternalSelectedOption] = useState<number | null>(null)
   const [showAnswer, setShowAnswer] = useState(false)
+
+  // Determine selection: controlled (userAnswer) takes precedence over internal state
+  const selectedOption = userAnswer !== undefined ? userAnswer : internalSelectedOption
 
   // Derived state
   const correctOptionIndex = options.findIndex((opt) => opt.isCorrect)
 
   // Handle selection
   const handleSelect = (idx: number) => {
-    setSelectedOption(idx)
+    if (onAnswerSelect) {
+      onAnswerSelect(idx)
+    } else {
+      setInternalSelectedOption(idx)
+    }
     // Auto-show answer if we want instant feedback logic immediately upon click?
     // IndiaBIX usually doesn't show WRONG/RIGHT immediately on click,
     // you have to click "View Answer" to see the green check.

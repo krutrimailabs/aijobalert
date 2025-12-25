@@ -2,19 +2,29 @@
 
 import { Search, Filter } from 'lucide-react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export function SearchBar() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState({
     state: '',
     education: '',
-    category: ''
+    category: '',
   })
+
+  const router = useRouter()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    // Implement search logic here
-    console.log('Searching for:', { searchQuery, filters })
+    if (searchQuery.trim()) {
+      const params = new URLSearchParams()
+      params.set('q', searchQuery)
+      if (filters.state) params.set('state', filters.state)
+      if (filters.education) params.set('education', filters.education)
+      if (filters.category) params.set('category', filters.category)
+
+      router.push(`/jobs?${params.toString()}`)
+    }
   }
 
   const popularSearches = [
@@ -23,14 +33,17 @@ export function SearchBar() {
     'Railway Jobs',
     'Teaching Jobs',
     'Engineering Jobs',
-    'Police Recruitment'
+    'Police Recruitment',
   ]
 
   return (
     <div>
       <form onSubmit={handleSearch} className="relative">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Search
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={20}
+          />
           <input
             type="text"
             placeholder="Search jobs by title, department, or keywords..."
@@ -45,7 +58,7 @@ export function SearchBar() {
             Search
           </button>
         </div>
-        
+
         <div className="flex flex-wrap gap-3 mt-3 px-1">
           <select
             className="flex-1 min-w-[150px] border rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
