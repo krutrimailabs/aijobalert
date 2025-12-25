@@ -3,12 +3,25 @@ import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
-
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Jobs } from './collections/Jobs'
+import { SavedJobs } from './collections/SavedJobs'
+import { Broadcasts } from './collections/Broadcasts'
+import { JobApplications } from './collections/JobApplications'
+import { EmailLogs } from './collections/EmailLogs'
+import { MockTests } from './collections/MockTests'
+import { Questions } from './collections/Questions'
+import { TestAttempts } from './collections/TestAttempts'
+import { PreviousPapers } from './collections/PreviousPapers'
+import { Comments } from './collections/Comments'
+import { PracticeTopics } from './collections/PracticeTopics'
+import { CurrentAffairs } from './collections/CurrentAffairs'
+import { Syllabus } from './collections/Syllabus'
+
+import { Threads } from './collections/Threads'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { SiteSettings } from './globals/SiteSettings'
@@ -65,7 +78,26 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Posts, Media, Categories, Users, Jobs],
+  collections: [
+    Users,
+    Media,
+    Jobs,
+    SavedJobs,
+    JobApplications,
+    Broadcasts,
+    Posts,
+    Categories,
+    EmailLogs,
+    MockTests,
+    Questions,
+    TestAttempts,
+    PreviousPapers,
+    Comments,
+    PracticeTopics,
+    CurrentAffairs,
+    Syllabus,
+    Threads,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings, FooterGlobal, SEOSettings],
   plugins,

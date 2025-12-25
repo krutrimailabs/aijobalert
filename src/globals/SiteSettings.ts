@@ -89,6 +89,39 @@ export const SiteSettings: GlobalConfig = {
             },
           ],
         },
+        {
+          label: 'Email Settings',
+          fields: [
+            {
+              name: 'enableEmailSystem',
+              type: 'checkbox',
+              defaultValue: true,
+              label: 'Enable System-wide Email Logging',
+            },
+            {
+              name: 'fromName',
+              type: 'text',
+              defaultValue: 'AI Job Alert',
+              label: 'Sender Name',
+              required: true,
+            },
+            {
+              name: 'fromEmail',
+              type: 'email',
+              defaultValue: 'alerts@aijobalert.in',
+              label: 'Sender Email Address (From)',
+              required: true,
+            },
+            {
+              name: 'adminAlertEmail',
+              type: 'email',
+              label: 'Admin Alert Recipient',
+              admin: {
+                description: 'Email to receive system health alerts or new signup notifications',
+              },
+            },
+          ],
+        },
       ],
     },
   ],

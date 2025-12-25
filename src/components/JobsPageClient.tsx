@@ -1,39 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  Users,
-  Calendar,
-  Bell,
-  ChevronRight,
-  MapPin,
-  GraduationCap,
-  Clock,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react'
+import { ChevronDown, ChevronUp, Bell } from 'lucide-react'
 import { JOB_CATEGORIES, EDUCATION_LEVELS, INDIAN_STATES } from '@/lib/constants'
-
-interface Job {
-  id: string | number
-  postName: string
-  recruitmentBoard: string
-  totalVacancies?: number
-  lastDate: string
-  state?: string
-  status?: string
-  category?: string[]
-  education?: string[]
-  updatedAt?: string
-  postDate?: string
-  salaryStipend?: string
-  minimumAge?: number
-  maximumAge?: number
-  feeGeneral?: string
-  applicationStartDate?: string
-}
+import { JobCard, Job } from '@/components/JobCard'
 
 interface Props {
   initialJobs: Job[]
@@ -52,6 +23,7 @@ export function JobsPageClient({ initialJobs }: Props) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedQualifications, setSelectedQualifications] = useState<string[]>([])
   const [selectedStates, setSelectedStates] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('active')
 
   // Initialize filters from URL
@@ -59,10 +31,12 @@ export function JobsPageClient({ initialJobs }: Props) {
     const cats = searchParams.get('category')?.split(',').filter(Boolean) || []
     const quals = searchParams.get('qualification')?.split(',').filter(Boolean) || []
     const states = searchParams.get('state')?.split(',').filter(Boolean) || []
+    const query = searchParams.get('q') || ''
 
     setSelectedCategories(cats)
     setSelectedQualifications(quals)
     setSelectedStates(states)
+    setSearchQuery(query)
   }, [searchParams])
 
   // Update URL when filters change
@@ -72,52 +46,39 @@ export function JobsPageClient({ initialJobs }: Props) {
     if (selectedCategories.length) params.set('category', selectedCategories.join(','))
     if (selectedQualifications.length) params.set('qualification', selectedQualifications.join(','))
     if (selectedStates.length) params.set('state', selectedStates.join(','))
+    if (searchQuery) params.set('q', searchQuery)
 
     router.push(`/jobs?${params.toString()}`, { scroll: false })
-  }, [router, selectedCategories, selectedQualifications, selectedStates])
+  }, [router, selectedCategories, selectedQualifications, selectedStates, searchQuery])
 
   useEffect(() => {
     const timer = setTimeout(updateURL, 300)
     return () => clearTimeout(timer)
   }, [updateURL])
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return '—'
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    })
-  }
-
-  const getDaysLeft = (dateStr?: string) => {
-    if (!dateStr) return null
-    const date = new Date(dateStr)
-    const today = new Date()
-    const diffTime = date.getTime() - today.getTime()
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  }
-
-  const isExpired = (dateStr?: string) => {
-    const daysLeft = getDaysLeft(dateStr)
-    return daysLeft !== null && daysLeft < 0
-  }
-
-  const isNew = (job: Job) => {
-    if (!job.postDate && !job.updatedAt) return false
-    const dateStr = job.postDate || job.updatedAt
-    if (!dateStr) return false
-    const posted = new Date(dateStr)
-    const now = new Date()
-    const diffDays = Math.ceil((now.getTime() - posted.getTime()) / (1000 * 60 * 60 * 24))
-    return diffDays <= 7
-  }
+  // Helpers moved to JobCard
 
   // Filter jobs
   const filteredJobs = initialJobs.filter((job) => {
-    // Status filter
+    // Status filter - logic duplicated from JobCard helpers effectively,
+    // but better to import helper if we want strict consistency.
+    // For now we can keep minimal logic or import helpers.
+    // Let's import helpers if we can?
+    // Actually JobCard doesn't export helpers.
+    // Let's copy basic date logic here locally to keep filtering working without exporting everything.
+
+    const getDaysLeft = (dateStr?: string) => {
+      if (!dateStr) return null
+      const date = new Date(dateStr)
+      const today = new Date()
+      const diffTime = date.getTime() - today.getTime()
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    }
+    const isExpired = (dateStr?: string) => {
+      const daysLeft = getDaysLeft(dateStr)
+      return daysLeft !== null && daysLeft < 0
+    }
+
     const expired = isExpired(job.lastDate)
     if (statusFilter === 'active' && expired) return false
     if (statusFilter === 'expired' && !expired) return false
@@ -134,6 +95,14 @@ export function JobsPageClient({ initialJobs }: Props) {
       return false
     if (selectedStates.length > 0 && !selectedStates.includes(job.state || '')) return false
 
+    // Search Query Filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      const title = job.postName?.toLowerCase() || ''
+      const board = job.recruitmentBoard?.toLowerCase() || ''
+      if (!title.includes(query) && !board.includes(query)) return false
+    }
+
     return true
   })
 
@@ -141,6 +110,7 @@ export function JobsPageClient({ initialJobs }: Props) {
     setSelectedCategories([])
     setSelectedQualifications([])
     setSelectedStates([])
+    setSearchQuery('')
     router.push('/jobs', { scroll: false })
   }
 
@@ -165,7 +135,10 @@ export function JobsPageClient({ initialJobs }: Props) {
   }
 
   const activeFilterCount =
-    selectedCategories.length + selectedQualifications.length + selectedStates.length
+    selectedCategories.length +
+    selectedQualifications.length +
+    selectedStates.length +
+    (searchQuery ? 1 : 0)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -173,8 +146,18 @@ export function JobsPageClient({ initialJobs }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 p-2 md:p-4">
           {/* Sidebar - Chip Based Filters */}
           <div className="lg:col-span-3 space-y-3">
-            {/* Filter Header */}
+            {/* Filter Header with Search Input */}
             <div className="bg-white rounded-lg p-3 shadow-sm border border-slate-200">
+              <div className="mb-3">
+                <input
+                  type="text"
+                  placeholder="Search by keyword..."
+                  className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm md:text-base font-bold text-slate-900">
                   Filters
@@ -325,6 +308,11 @@ export function JobsPageClient({ initialJobs }: Props) {
                 <div>
                   <h1 className="text-base md:text-lg font-bold text-slate-900">
                     Government Jobs {new Date().getFullYear()}
+                    {searchQuery && (
+                      <span className="text-slate-500 text-sm ml-2">
+                        - results for &quot;{searchQuery}&quot;
+                      </span>
+                    )}
                   </h1>
                   <p className="text-xs md:text-sm text-slate-600 mt-0.5">
                     <strong className="text-slate-900">{filteredJobs.length}</strong> of{' '}
@@ -380,180 +368,9 @@ export function JobsPageClient({ initialJobs }: Props) {
             {/* Job Cards - ULTRA COMPACT */}
             <div className="space-y-2">
               {filteredJobs.length > 0 ? (
-                filteredJobs.map((job: Job) => {
-                  const daysLeft = getDaysLeft(job.lastDate)
-                  const urgent = daysLeft !== null && daysLeft > 0 && daysLeft <= 5
-                  const expired = isExpired(job.lastDate)
-
-                  return (
-                    <Link
-                      key={job.id}
-                      href={`/jobs/${String(job.id)}`}
-                      className="block bg-white rounded-lg p-2.5 md:p-3 border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all"
-                    >
-                      {/* Header Row */}
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1 min-w-0">
-                          {/* Org + Badges */}
-                          <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                            <span className="text-[9px] md:text-[10px] font-bold text-blue-700 uppercase">
-                              {job.recruitmentBoard || 'Govt'}
-                            </span>
-                            {!expired && isNew(job) && (
-                              <span className="px-1.5 py-0.5 bg-green-600 text-white text-[8px] md:text-[9px] font-bold rounded">
-                                NEW
-                              </span>
-                            )}
-                            {!expired && urgent && (
-                              <span className="px-1.5 py-0.5 bg-red-600 text-white text-[8px] md:text-[9px] font-bold rounded">
-                                URGENT
-                              </span>
-                            )}
-                            {expired && (
-                              <span className="px-1.5 py-0.5 bg-slate-500 text-white text-[8px] md:text-[9px] font-bold rounded">
-                                EXPIRED
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Title */}
-                          <h3 className="text-xs md:text-sm font-bold text-slate-900 leading-tight mb-1.5 line-clamp-2">
-                            {job.postName}
-                          </h3>
-                        </div>
-
-                        {/* Days Left or Expired */}
-                        {expired ? (
-                          <div className="flex-shrink-0 px-2 py-1 rounded bg-slate-100 text-center">
-                            <div className="text-xs md:text-sm font-bold text-slate-500 leading-none">
-                              ✕
-                            </div>
-                            <div className="text-[8px] md:text-[9px] font-medium text-slate-500">
-                              Expired
-                            </div>
-                          </div>
-                        ) : daysLeft !== null && daysLeft > 0 ? (
-                          <div
-                            className={`flex-shrink-0 px-2 py-1 rounded text-center ${
-                              urgent ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'
-                            }`}
-                          >
-                            <div className="text-sm md:text-base font-black leading-none">
-                              {daysLeft}
-                            </div>
-                            <div className="text-[8px] md:text-[9px] font-medium">days</div>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      {/* Info Grid - Compact */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-1.5">
-                        {job.totalVacancies && (
-                          <div className="flex items-center gap-1">
-                            <Users className="w-3 h-3 text-blue-600 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[8px] md:text-[9px] text-slate-500">Posts</div>
-                              <div className="text-xs md:text-sm font-bold text-slate-900 truncate">
-                                {job.totalVacancies.toLocaleString('en-IN')}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-1">
-                          <Calendar
-                            className={`w-3 h-3 flex-shrink-0 ${
-                              urgent ? 'text-red-600' : 'text-orange-600'
-                            }`}
-                          />
-                          <div className="min-w-0">
-                            <div className="text-[8px] md:text-[9px] text-slate-500">Deadline</div>
-                            <div
-                              className={`text-xs md:text-sm font-bold truncate ${
-                                urgent ? 'text-red-600' : 'text-slate-900'
-                              }`}
-                            >
-                              {formatDate(job.lastDate)}
-                            </div>
-                          </div>
-                        </div>
-
-                        {job.state && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-purple-600 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[8px] md:text-[9px] text-slate-500">
-                                Location
-                              </div>
-                              <div className="text-xs md:text-sm font-bold text-slate-900 truncate">
-                                {INDIAN_STATES.find((s) => s.value === job.state)?.label ||
-                                  job.state}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {job.education && job.education.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <GraduationCap className="w-3 h-3 text-green-600 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[8px] md:text-[9px] text-slate-500">
-                                Education
-                              </div>
-                              <div className="text-xs md:text-sm font-bold text-slate-900 truncate">
-                                {EDUCATION_LEVELS.find((e) => e.value === job.education?.[0])
-                                  ?.label || job.education[0]}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Eligibility & Details Row - Compact */}
-                      <div className="flex flex-wrap gap-1.5 mb-1.5">
-                        {/* Age Limit */}
-                        {(job.minimumAge || job.maximumAge) && (
-                          <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-[9px] md:text-[10px] font-semibold rounded border border-amber-200">
-                            Age: {job.minimumAge || '—'}-{job.maximumAge || '—'} yrs
-                          </span>
-                        )}
-
-                        {/* Salary */}
-                        {job.salaryStipend && (
-                          <span className="px-2 py-0.5 bg-green-50 text-green-700 text-[9px] md:text-[10px] font-semibold rounded border border-green-200">
-                            💰 {job.salaryStipend}
-                          </span>
-                        )}
-
-                        {/* Application Fee */}
-                        {job.feeGeneral && (
-                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-[9px] md:text-[10px] font-semibold rounded border border-blue-200">
-                            Fee: ₹{job.feeGeneral}
-                          </span>
-                        )}
-
-                        {/* Application Start Date */}
-                        {job.applicationStartDate && (
-                          <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-[9px] md:text-[10px] font-semibold rounded border border-purple-200">
-                            Apply from: {formatDate(job.applicationStartDate)}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Footer */}
-                      <div className="flex items-center justify-between pt-1.5 border-t border-slate-100">
-                        <div className="flex items-center gap-1 text-[9px] md:text-[10px] text-slate-500">
-                          <Clock className="w-3 h-3" />
-                          {formatDate(job.postDate || job.updatedAt)}
-                        </div>
-                        <div className="flex items-center gap-1 text-blue-600 font-semibold text-[10px] md:text-xs">
-                          Details
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </div>
-                      </div>
-                    </Link>
-                  )
-                })
+                filteredJobs.map((job: Job) => (
+                  <JobCard key={job.id} job={job} searchQuery={searchQuery} />
+                ))
               ) : (
                 <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-slate-300">
                   <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />

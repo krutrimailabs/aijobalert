@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { generateJobPostingSchema } from '@/utilities/schemaGenerator'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import React from 'react'
@@ -15,62 +16,19 @@ import {
   FileText,
   AlertCircle,
   ExternalLink,
+  Download,
 } from 'lucide-react'
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import { PreviousPaper } from '@/payload-types'
+import { QualificationWidget } from '@/components/QualificationWidget'
 
-import { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
+// cleaned up unused import
+
+import type { Job } from '@/payload-types'
+import { QualificationChecker } from '@/components/QualificationChecker'
+import { SalaryCalculator } from '@/components/SalaryCalculator'
 
 export const dynamic = 'force-dynamic'
-
-interface Job {
-  id: string
-  postName: string
-  recruitmentBoard: string
-  totalVacancies?: number
-  lastDate: string
-  postDate: string
-  state?: string
-  category?: string[]
-  education?: string[]
-  salaryStipend?: string
-  aiSummary?: string
-  eligibilityDetails?: SerializedEditorState
-  applyLink: string
-  officialNotification?: {
-    url: string
-    filename: string
-  }
-  // New structured fields
-  applicationStartDate?: string
-  examDate?: string
-  admitCardDate?: string
-  resultDate?: string
-  ageCalculationDate?: string
-  minimumAge?: number
-  maximumAge?: number
-  ageRelaxation?: SerializedEditorState
-  physicalStandards?: SerializedEditorState
-  feeGeneral?: string
-  feeOBC?: string
-  feeSC?: string
-  feeST?: string
-  feeExemptions?: string
-  paymentModes?: string
-  vacancyBreakdown?: SerializedEditorState
-  reservationDetails?: SerializedEditorState
-  applicationProcess?: SerializedEditorState
-  requiredDocuments?: Array<{
-    documentName: string
-    description?: string
-    mandatory?: boolean
-  }>
-  applicationFee?: SerializedEditorState
-  selectionProcess?: SerializedEditorState
-  importantLinks?: Array<{
-    label: string
-    url: string
-  }>
-}
 
 export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -131,8 +89,16 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
   const isUrgent = new Date(job.lastDate) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
   const isNew = new Date(job.postDate) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
+  const jobSchema = job ? generateJobPostingSchema(job) : null
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
+      {jobSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }}
+        />
+      )}
       {/* Navigation / Header */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-20">
         <div className="container mx-auto px-4 h-16 flex items-center">
@@ -566,6 +532,46 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
               </div>
             )}
 
+            {/* Previous Year Papers */}
+            {job.previousPapers && job.previousPapers.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+                <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center">
+                  <FileText className="w-6 h-6 mr-2 text-blue-600" />
+                  Previous Year Papers
+                </h2>
+                <div className="grid gap-4">
+                  {job.previousPapers.map((paper: PreviousPaper | string | number) => {
+                    if (typeof paper !== 'object') return null
+                    return (
+                      <div
+                        key={paper.id}
+                        className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100 hover:border-blue-200 transition-colors"
+                      >
+                        <div>
+                          <h3 className="font-bold text-slate-900">{paper.title}</h3>
+                          <p className="text-sm text-slate-500">
+                            {paper.examName} • {paper.year}
+                          </p>
+                        </div>
+                        <Link
+                          href={
+                            paper.file && typeof paper.file !== 'number' && paper.file.url
+                              ? paper.file.url
+                              : '#'
+                          }
+                          target="_blank"
+                          className="flex items-center gap-2 bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download PDF
+                        </Link>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* How to Apply */}
             {(job.applicationProcess || job.requiredDocuments) && (
               <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
@@ -705,6 +711,9 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
 
           {/* Right Sidebar */}
           <div className="space-y-6">
+            <QualificationChecker job={job} />
+            <SalaryCalculator salaryString={job.salaryStipend} />
+
             {/* Action Card */}
             <div className="bg-white rounded-xl p-6 shadow-lg border border-blue-100 sticky top-24">
               <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h3>
@@ -718,16 +727,18 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                 Apply Online
               </Link>
 
-              {job.officialNotification && (
-                <Link
-                  href={job.officialNotification.url}
-                  target="_blank"
-                  className="flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition-colors mb-3"
-                >
-                  <FileText className="w-5 h-5" />
-                  Download Notification
-                </Link>
-              )}
+              {job.officialNotification &&
+                typeof job.officialNotification !== 'number' &&
+                job.officialNotification.url && (
+                  <Link
+                    href={job.officialNotification.url}
+                    target="_blank"
+                    className="flex items-center justify-center gap-2 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition-colors mb-3"
+                  >
+                    <FileText className="w-5 h-5" />
+                    Download Notification
+                  </Link>
+                )}
 
               {job.importantLinks && job.importantLinks.length > 0 && (
                 <div className="border-t pt-4 mt-4">
@@ -748,15 +759,13 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                   </div>
                 </div>
               )}
-
-              <div className="pt-4 border-t border-slate-100 mt-4">
-                <p className="text-xs text-center text-slate-400">Last updated: Today</p>
-              </div>
             </div>
+            {/* AI Prediction Widget */}
+            <QualificationWidget jobId={job.id} expectedCutoff={job.expectedCutoff} />
 
-            {/* Timeline */}
+            {/* Quick Actions */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900 mb-4">Job Timeline</h3>
+              <h3 className="font-bold text-slate-900 mb-4">Quick Actions</h3>
               <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
                 {/* Notification */}
                 <div className="relative pl-8">
@@ -795,9 +804,6 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
                       <div className="w-2 h-2 bg-slate-300 rounded-full" />
                     </div>
                     <p className="text-sm font-semibold text-slate-900">Exam Date</p>
-                    <p className="text-xs text-slate-500">
-                      {new Date(job.examDate).toLocaleDateString('en-IN')}
-                    </p>
                   </div>
                 )}
 

@@ -295,11 +295,26 @@ export const Jobs: CollectionConfig = {
               relationTo: 'media',
               label: 'Short Notice (Fast Read)',
             },
+            {
+              name: 'previousPapers',
+              type: 'relationship',
+              relationTo: 'previous-papers',
+              hasMany: true,
+              label: 'Related Previous Year Papers',
+            },
           ],
         },
         {
           label: 'AI & Content',
           fields: [
+            {
+              name: 'expectedCutoff',
+              type: 'number',
+              admin: {
+                description:
+                  'Expected cutoff marks (out of 100) for qualification prediction engine',
+              },
+            },
             { name: 'aiSummary', type: 'textarea' },
             { name: 'eligibilityDetails', type: 'richText' },
             { name: 'salaryStipend', type: 'text' },

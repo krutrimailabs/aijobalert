@@ -1,0 +1,22 @@
+[2025-12-25T08:51:42.893Z] Starting bulk import from /Users/apple/Gitlab/ai-job-alert/practice-seed-data.json
+[2025-12-25T08:51:42.961Z] ERROR: Error: Error: missing secret key. A secret key is needed to secure Payload.
+[2025-12-25T08:52:41.204Z] Starting bulk import from /Users/apple/Gitlab/ai-job-alert/practice-seed-data.json
+[2025-12-25T08:52:47.495Z] Processing Topic: Problems on Trains (General Aptitude)
+[2025-12-25T08:52:47.896Z]   Created new topic: 1
+[2025-12-25T08:52:47.995Z] ERROR: ValidationError: The following fields are invalid: Options 1 > Text, Options 2 > Text, Options 3 > Text, Options 4 > Text
+[2025-12-25T08:53:33.272Z] Starting bulk import from /Users/apple/Gitlab/ai-job-alert/practice-seed-data.json
+[2025-12-25T08:53:38.975Z] Processing Topic: Problems on Trains (General Aptitude)
+[2025-12-25T08:53:39.142Z]   Found existing topic: 1
+[2025-12-25T08:53:39.555Z]     Imported question: A train running at the speed o...
+[2025-12-25T08:53:39.919Z]     Imported question: A train 125 m long passes a ma...
+[2025-12-25T08:53:40.525Z]     Imported question: The length of the bridge, whic...
+[2025-12-25T08:53:40.525Z] Processing Topic: Time and Work (General Aptitude)
+[2025-12-25T08:53:40.849Z]   Created new topic: 2
+[2025-12-25T08:53:41.215Z]     Imported question: A can do a work in 15 days and...
+[2025-12-25T08:53:41.215Z] Processing Topic: C Programming (Programming)
+[2025-12-25T08:53:41.514Z]   Created new topic: 3
+[2025-12-25T08:53:41.860Z]     Imported question: Who is known as the father of ...
+[2025-12-25T08:53:41.861Z] Processing Topic: Civil Engineering (Engineering)
+[2025-12-25T08:53:42.104Z]   Created new topic: 4
+[2025-12-25T08:53:42.498Z]     Imported question: The ratio of the volume of voi...
+[2025-12-25T08:53:42.499Z] Bulk import completed successfully.

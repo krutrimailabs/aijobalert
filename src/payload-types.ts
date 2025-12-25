@@ -67,11 +67,24 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    posts: Post;
-    media: Media;
-    categories: Category;
     users: User;
+    media: Media;
     jobs: Job;
+    'saved-jobs': SavedJob;
+    'job-applications': JobApplication;
+    broadcasts: Broadcast;
+    posts: Post;
+    categories: Category;
+    'email-logs': EmailLog;
+    'mock-tests': MockTest;
+    questions: Question;
+    'test-attempts': TestAttempt;
+    'previous-papers': PreviousPaper;
+    comments: Comment;
+    'practice-topics': PracticeTopic;
+    'current-affairs': CurrentAffair;
+    syllabus: Syllabus;
+    threads: Thread;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -89,11 +102,24 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    posts: PostsSelect<false> | PostsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     jobs: JobsSelect<false> | JobsSelect<true>;
+    'saved-jobs': SavedJobsSelect<false> | SavedJobsSelect<true>;
+    'job-applications': JobApplicationsSelect<false> | JobApplicationsSelect<true>;
+    broadcasts: BroadcastsSelect<false> | BroadcastsSelect<true>;
+    posts: PostsSelect<false> | PostsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'email-logs': EmailLogsSelect<false> | EmailLogsSelect<true>;
+    'mock-tests': MockTestsSelect<false> | MockTestsSelect<true>;
+    questions: QuestionsSelect<false> | QuestionsSelect<true>;
+    'test-attempts': TestAttemptsSelect<false> | TestAttemptsSelect<true>;
+    'previous-papers': PreviousPapersSelect<false> | PreviousPapersSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
+    'practice-topics': PracticeTopicsSelect<false> | PracticeTopicsSelect<true>;
+    'current-affairs': CurrentAffairsSelect<false> | CurrentAffairsSelect<true>;
+    syllabus: SyllabusSelect<false> | SyllabusSelect<true>;
+    threads: ThreadsSelect<false> | ThreadsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -156,53 +182,187 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "users".
  */
-export interface Post {
+export interface User {
   id: number;
-  title: string;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
+  name: string;
+  roles: ('superadmin' | 'admin' | 'candidate')[];
+  /**
+   * Your educational qualifications
+   */
+  qualification?:
+    | (
+        | '8TH'
+        | '10TH'
+        | '12TH'
+        | 'ITI'
+        | 'Diploma'
+        | 'Graduate'
+        | 'PG'
+        | 'PhD'
+        | 'B.Tech'
+        | 'M.Tech'
+        | 'MBBS'
+        | 'BDS'
+        | 'CA_ICWA'
+        | 'LLB'
+        | 'LLM'
+        | 'B.Ed'
+        | 'M.Ed'
+        | 'B.Pharm'
+        | 'M.Pharm'
+        | 'B.Sc_Nursing'
+        | 'M.Sc_Nursing'
+      )[]
     | null;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Your home state (for domicile-based jobs)
    */
-  generateSlug?: boolean | null;
-  slug: string;
+  domicileState?:
+    | (
+        | 'AP'
+        | 'AR'
+        | 'AS'
+        | 'BR'
+        | 'CG'
+        | 'GA'
+        | 'GJ'
+        | 'HR'
+        | 'HP'
+        | 'JH'
+        | 'KA'
+        | 'KL'
+        | 'MP'
+        | 'MH'
+        | 'MN'
+        | 'ML'
+        | 'MZ'
+        | 'NL'
+        | 'OD'
+        | 'PB'
+        | 'RJ'
+        | 'SK'
+        | 'TN'
+        | 'TS'
+        | 'TR'
+        | 'UP'
+        | 'UK'
+        | 'WB'
+        | 'AN'
+        | 'CH'
+        | 'DN'
+        | 'DL'
+        | 'JK'
+        | 'LA'
+        | 'LD'
+        | 'PY'
+        | 'AI'
+      )
+    | null;
+  /**
+   * States where you want to find jobs
+   */
+  preferredStates?:
+    | (
+        | 'AP'
+        | 'AR'
+        | 'AS'
+        | 'BR'
+        | 'CG'
+        | 'GA'
+        | 'GJ'
+        | 'HR'
+        | 'HP'
+        | 'JH'
+        | 'KA'
+        | 'KL'
+        | 'MP'
+        | 'MH'
+        | 'MN'
+        | 'ML'
+        | 'MZ'
+        | 'NL'
+        | 'OD'
+        | 'PB'
+        | 'RJ'
+        | 'SK'
+        | 'TN'
+        | 'TS'
+        | 'TR'
+        | 'UP'
+        | 'UK'
+        | 'WB'
+        | 'AN'
+        | 'CH'
+        | 'DN'
+        | 'DL'
+        | 'JK'
+        | 'LA'
+        | 'LD'
+        | 'PY'
+        | 'AI'
+      )[]
+    | null;
+  /**
+   * Used to calculate age eligibility
+   */
+  dateOfBirth?: string | null;
+  /**
+   * Reservation category (for age relaxation)
+   */
+  category?: ('General' | 'OBC' | 'SC' | 'ST' | 'EWS') | null;
+  gender?: ('Male' | 'Female' | 'Other') | null;
+  /**
+   * PWD category (for age relaxation and reserved posts)
+   */
+  physicallyDisabled?: boolean | null;
+  stats?: {
+    /**
+     * Last time the user logged in
+     */
+    lastLoginAt?: string | null;
+    /**
+     * Total number of logins
+     */
+    loginCount?: number | null;
+    /**
+     * Total applications submitted (auto-calculated)
+     */
+    applicationCount?: number | null;
+  };
+  notificationPreferences?: {
+    emailAlerts?: boolean | null;
+    /**
+     * Summary of new jobs every morning
+     */
+    dailyDigest?: boolean | null;
+    /**
+     * Immediate email when a high-match job is posted
+     */
+    instantJobAlerts?: boolean | null;
+    /**
+     * Alerts for Admit Card/Result of applied jobs
+     */
+    applicationUpdates?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -322,122 +482,6 @@ export interface FolderInterface {
   folderType?: 'media'[] | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name: string;
-  roles: ('superadmin' | 'admin' | 'candidate')[];
-  qualification?:
-    | (
-        | '8TH'
-        | '10TH'
-        | '12TH'
-        | 'ITI'
-        | 'Diploma'
-        | 'Graduate'
-        | 'PG'
-        | 'PhD'
-        | 'B.Tech'
-        | 'M.Tech'
-        | 'MBBS'
-        | 'BDS'
-        | 'CA_ICWA'
-        | 'LLB'
-        | 'LLM'
-        | 'B.Ed'
-        | 'M.Ed'
-        | 'B.Pharm'
-        | 'M.Pharm'
-        | 'B.Sc_Nursing'
-        | 'M.Sc_Nursing'
-      )[]
-    | null;
-  domicileState?:
-    | (
-        | 'AP'
-        | 'AR'
-        | 'AS'
-        | 'BR'
-        | 'CG'
-        | 'GA'
-        | 'GJ'
-        | 'HR'
-        | 'HP'
-        | 'JH'
-        | 'KA'
-        | 'KL'
-        | 'MP'
-        | 'MH'
-        | 'MN'
-        | 'ML'
-        | 'MZ'
-        | 'NL'
-        | 'OD'
-        | 'PB'
-        | 'RJ'
-        | 'SK'
-        | 'TN'
-        | 'TS'
-        | 'TR'
-        | 'UP'
-        | 'UK'
-        | 'WB'
-        | 'AN'
-        | 'CH'
-        | 'DN'
-        | 'DL'
-        | 'JK'
-        | 'LA'
-        | 'LD'
-        | 'PY'
-        | 'AI'
-      )
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -737,6 +781,11 @@ export interface Job {
       }[]
     | null;
   shortNotification?: (number | null) | Media;
+  previousPapers?: (number | PreviousPaper)[] | null;
+  /**
+   * Expected cutoff marks (out of 100) for qualification prediction engine
+   */
+  expectedCutoff?: number | null;
   aiSummary?: string | null;
   eligibilityDetails?: {
     root: {
@@ -761,6 +810,476 @@ export interface Job {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "previous-papers".
+ */
+export interface PreviousPaper {
+  id: number;
+  title: string;
+  examName: string;
+  examCategory: 'ssc' | 'banking' | 'teaching' | 'upsc' | 'defence' | 'state';
+  year: number;
+  file: number | Media;
+  downloadCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "saved-jobs".
+ */
+export interface SavedJob {
+  id: number;
+  user: number | User;
+  job: number | Job;
+  /**
+   * Personal notes about this job
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "job-applications".
+ */
+export interface JobApplication {
+  id: number;
+  user: number | User;
+  job: number | Job;
+  status: 'applied' | 'admit-card-downloaded' | 'exam-given' | 'result-awaited' | 'selected' | 'rejected';
+  /**
+   * Date when you applied
+   */
+  applicationDate: string;
+  /**
+   * Date when admit card was downloaded
+   */
+  admitCardDate?: string | null;
+  /**
+   * Exam date
+   */
+  examDate?: string | null;
+  /**
+   * Result declaration date
+   */
+  resultDate?: string | null;
+  /**
+   * Application notes, preparation status, etc.
+   */
+  notes?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Send bulk emails to users
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "broadcasts".
+ */
+export interface Broadcast {
+  id: number;
+  subject: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Who should receive this email?
+   */
+  targetAudience: 'all' | 'subscribers';
+  status: 'draft' | 'sent';
+  sentAt?: string | null;
+  /**
+   * Number of users emailed
+   */
+  recipientCount?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-logs".
+ */
+export interface EmailLog {
+  id: number;
+  type: 'sent' | 'delivered' | 'open' | 'click' | 'bounce' | 'complaint';
+  email: string;
+  resendId?: string | null;
+  campaign?: string | null;
+  linkClicked?: string | null;
+  user?: (number | null) | User;
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mock-tests".
+ */
+export interface MockTest {
+  id: number;
+  title: string;
+  examType: 'ibps' | 'ssc' | 'rrb' | 'upsc' | 'state';
+  duration: number;
+  hasSectionalTimer?: boolean | null;
+  sections?:
+    | {
+        name: string;
+        /**
+         * Required if Sectional Timing is enabled
+         */
+        duration?: number | null;
+        order: number;
+        subject?: ('quant' | 'reasoning' | 'english' | 'ga' | 'computer') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Select questions for this test
+   */
+  questions?: (number | Question)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "questions".
+ */
+export interface Question {
+  id: number;
+  text: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  options: {
+    text: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    };
+    isCorrect: boolean;
+    id?: string | null;
+  }[];
+  explanation?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  marks: number;
+  negativeMarks: number;
+  topic?: (number | PracticeTopic)[] | null;
+  subject: 'quant' | 'reasoning' | 'english' | 'ga' | 'computer';
+  difficulty?: ('easy' | 'medium' | 'hard') | null;
+  /**
+   * Tag this question for specific exam types (optional)
+   */
+  examTags?: ('bank' | 'ssc' | 'railway' | 'upsc' | 'defense' | 'engineering')[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practice-topics".
+ */
+export interface PracticeTopic {
+  id: number;
+  name: string;
+  /**
+   * URL-friendly name (e.g., problems-on-trains)
+   */
+  slug?: string | null;
+  parent?: (number | null) | PracticeTopic;
+  category:
+    | 'General Aptitude'
+    | 'Verbal and Reasoning'
+    | 'Current Affairs & GK'
+    | 'Engineering'
+    | 'Programming'
+    | 'Technical MCQs'
+    | 'Medical Science'
+    | 'Puzzles';
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "test-attempts".
+ */
+export interface TestAttempt {
+  id: number;
+  user: number | User;
+  test: number | MockTest;
+  status?: ('in_progress' | 'completed') | null;
+  score?: number | null;
+  totalTimeSpent?: number | null;
+  answers?:
+    | {
+        question: number | Question;
+        userSelectedOptionId?: string | null;
+        status?: ('answered' | 'marked_review' | 'ans_marked_review' | 'skipped' | 'not_visited') | null;
+        timeSpent?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  user: number | User;
+  question?: (number | null) | Question;
+  thread?: (number | null) | Thread;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  upvotes?: number | null;
+  status: 'published' | 'pending' | 'rejected';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "threads".
+ */
+export interface Thread {
+  id: number;
+  title: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  author: number | User;
+  relatedQuestion?: (number | null) | Question;
+  tags?: ('general' | 'strategy' | 'doubt' | 'news' | 'success-story')[] | null;
+  status: 'published' | 'pending' | 'rejected';
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "current-affairs".
+ */
+export interface CurrentAffair {
+  id: number;
+  title: string;
+  date: string;
+  category: 'national' | 'international' | 'sports' | 'economy' | 'science-tech' | 'appointments' | 'awards';
+  summary: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  source?: string | null;
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "syllabus".
+ */
+export interface Syllabus {
+  id: number;
+  title: string;
+  category: 'ssc' | 'banking' | 'upsc' | 'railways' | 'teaching' | 'state-exams' | 'defence';
+  subject?: string | null;
+  topics?:
+    | {
+        topicName: string;
+        subTopics?: string | null;
+        weightage?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  pdf?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -771,10 +1290,15 @@ export interface Redirect {
   from: string;
   to?: {
     type?: ('reference' | 'custom') | null;
-    reference?: {
-      relationTo: 'posts';
-      value: number | Post;
-    } | null;
+    reference?:
+      | ({
+          relationTo: 'jobs';
+          value: number | Job;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null);
     url?: string | null;
   };
   updatedAt: string;
@@ -981,10 +1505,15 @@ export interface Search {
   id: number;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
+  doc:
+    | {
+        relationTo: 'jobs';
+        value: number | Job;
+      }
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      };
   slug?: string | null;
   meta?: {
     title?: string | null;
@@ -1119,24 +1648,76 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'posts';
-        value: number | Post;
+        relationTo: 'users';
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'jobs';
+        value: number | Job;
+      } | null)
+    | ({
+        relationTo: 'saved-jobs';
+        value: number | SavedJob;
+      } | null)
+    | ({
+        relationTo: 'job-applications';
+        value: number | JobApplication;
+      } | null)
+    | ({
+        relationTo: 'broadcasts';
+        value: number | Broadcast;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: number | Category;
       } | null)
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'email-logs';
+        value: number | EmailLog;
       } | null)
     | ({
-        relationTo: 'jobs';
-        value: number | Job;
+        relationTo: 'mock-tests';
+        value: number | MockTest;
+      } | null)
+    | ({
+        relationTo: 'questions';
+        value: number | Question;
+      } | null)
+    | ({
+        relationTo: 'test-attempts';
+        value: number | TestAttempt;
+      } | null)
+    | ({
+        relationTo: 'previous-papers';
+        value: number | PreviousPaper;
+      } | null)
+    | ({
+        relationTo: 'comments';
+        value: number | Comment;
+      } | null)
+    | ({
+        relationTo: 'practice-topics';
+        value: number | PracticeTopic;
+      } | null)
+    | ({
+        relationTo: 'current-affairs';
+        value: number | CurrentAffair;
+      } | null)
+    | ({
+        relationTo: 'syllabus';
+        value: number | Syllabus;
+      } | null)
+    | ({
+        relationTo: 'threads';
+        value: number | Thread;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1202,34 +1783,49 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts_select".
+ * via the `definition` "users_select".
  */
-export interface PostsSelect<T extends boolean = true> {
-  title?: T;
-  heroImage?: T;
-  content?: T;
-  relatedPosts?: T;
-  categories?: T;
-  meta?:
+export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  roles?: T;
+  qualification?: T;
+  domicileState?: T;
+  preferredStates?: T;
+  dateOfBirth?: T;
+  category?: T;
+  gender?: T;
+  physicallyDisabled?: T;
+  stats?:
     | T
     | {
-        title?: T;
-        image?: T;
-        description?: T;
+        lastLoginAt?: T;
+        loginCount?: T;
+        applicationCount?: T;
       };
-  publishedAt?: T;
-  authors?: T;
-  populatedAuthors?:
+  notificationPreferences?:
+    | T
+    | {
+        emailAlerts?: T;
+        dailyDigest?: T;
+        instantJobAlerts?: T;
+        applicationUpdates?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
     | T
     | {
         id?: T;
-        name?: T;
+        createdAt?: T;
+        expiresAt?: T;
       };
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1327,52 +1923,6 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  title?: T;
-  generateSlug?: T;
-  slug?: T;
-  parent?: T;
-  breadcrumbs?:
-    | T
-    | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect<T extends boolean = true> {
-  name?: T;
-  roles?: T;
-  qualification?: T;
-  domicileState?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "jobs_select".
  */
 export interface JobsSelect<T extends boolean = true> {
@@ -1422,11 +1972,283 @@ export interface JobsSelect<T extends boolean = true> {
         id?: T;
       };
   shortNotification?: T;
+  previousPapers?: T;
+  expectedCutoff?: T;
   aiSummary?: T;
   eligibilityDetails?: T;
   salaryStipend?: T;
   applyLink?: T;
   officialNotification?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "saved-jobs_select".
+ */
+export interface SavedJobsSelect<T extends boolean = true> {
+  user?: T;
+  job?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "job-applications_select".
+ */
+export interface JobApplicationsSelect<T extends boolean = true> {
+  user?: T;
+  job?: T;
+  status?: T;
+  applicationDate?: T;
+  admitCardDate?: T;
+  examDate?: T;
+  resultDate?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "broadcasts_select".
+ */
+export interface BroadcastsSelect<T extends boolean = true> {
+  subject?: T;
+  content?: T;
+  targetAudience?: T;
+  status?: T;
+  sentAt?: T;
+  recipientCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  title?: T;
+  heroImage?: T;
+  content?: T;
+  relatedPosts?: T;
+  categories?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  authors?: T;
+  populatedAuthors?:
+    | T
+    | {
+        id?: T;
+        name?: T;
+      };
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "email-logs_select".
+ */
+export interface EmailLogsSelect<T extends boolean = true> {
+  type?: T;
+  email?: T;
+  resendId?: T;
+  campaign?: T;
+  linkClicked?: T;
+  user?: T;
+  metadata?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mock-tests_select".
+ */
+export interface MockTestsSelect<T extends boolean = true> {
+  title?: T;
+  examType?: T;
+  duration?: T;
+  hasSectionalTimer?: T;
+  sections?:
+    | T
+    | {
+        name?: T;
+        duration?: T;
+        order?: T;
+        subject?: T;
+        id?: T;
+      };
+  questions?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "questions_select".
+ */
+export interface QuestionsSelect<T extends boolean = true> {
+  text?: T;
+  options?:
+    | T
+    | {
+        text?: T;
+        isCorrect?: T;
+        id?: T;
+      };
+  explanation?: T;
+  marks?: T;
+  negativeMarks?: T;
+  topic?: T;
+  subject?: T;
+  difficulty?: T;
+  examTags?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "test-attempts_select".
+ */
+export interface TestAttemptsSelect<T extends boolean = true> {
+  user?: T;
+  test?: T;
+  status?: T;
+  score?: T;
+  totalTimeSpent?: T;
+  answers?:
+    | T
+    | {
+        question?: T;
+        userSelectedOptionId?: T;
+        status?: T;
+        timeSpent?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "previous-papers_select".
+ */
+export interface PreviousPapersSelect<T extends boolean = true> {
+  title?: T;
+  examName?: T;
+  examCategory?: T;
+  year?: T;
+  file?: T;
+  downloadCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  user?: T;
+  question?: T;
+  thread?: T;
+  content?: T;
+  upvotes?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "practice-topics_select".
+ */
+export interface PracticeTopicsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  parent?: T;
+  category?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "current-affairs_select".
+ */
+export interface CurrentAffairsSelect<T extends boolean = true> {
+  title?: T;
+  date?: T;
+  category?: T;
+  summary?: T;
+  content?: T;
+  source?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "syllabus_select".
+ */
+export interface SyllabusSelect<T extends boolean = true> {
+  title?: T;
+  category?: T;
+  subject?: T;
+  topics?:
+    | T
+    | {
+        topicName?: T;
+        subTopics?: T;
+        weightage?: T;
+        id?: T;
+      };
+  pdf?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "threads_select".
+ */
+export interface ThreadsSelect<T extends boolean = true> {
+  title?: T;
+  content?: T;
+  author?: T;
+  relatedQuestion?: T;
+  tags?: T;
+  status?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1716,10 +2538,15 @@ export interface Header {
         link: {
           type?: ('reference' | 'custom') | null;
           newTab?: boolean | null;
-          reference?: {
-            relationTo: 'posts';
-            value: number | Post;
-          } | null;
+          reference?:
+            | ({
+                relationTo: 'jobs';
+                value: number | Job;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
           url?: string | null;
           label: string;
         };
@@ -1771,6 +2598,13 @@ export interface SiteSetting {
   contactEmail?: string | null;
   contactPhone?: string | null;
   address?: string | null;
+  enableEmailSystem?: boolean | null;
+  fromName: string;
+  fromEmail: string;
+  /**
+   * Email to receive system health alerts or new signup notifications
+   */
+  adminAlertEmail?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1872,6 +2706,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   contactEmail?: T;
   contactPhone?: T;
   address?: T;
+  enableEmailSystem?: T;
+  fromName?: T;
+  fromEmail?: T;
+  adminAlertEmail?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

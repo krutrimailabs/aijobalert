@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { Menu, X, Search, FileText, ChevronDown } from 'lucide-react'
 import { JOB_CATEGORIES, EDUCATION_LEVELS, INDIAN_STATES } from '@/lib/constants'
@@ -47,9 +48,19 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
   const _header = React.use(headerPromise)
   const [isOpen, setIsOpen] = useState(false)
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null)
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState('')
 
   const toggleExpanded = (label: string) => {
     setExpandedMenu(expandedMenu === label ? null : label)
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/jobs?q=${encodeURIComponent(searchQuery)}`)
+      setIsOpen(false) // Close mobile menu if open
+    }
   }
 
   return (
@@ -75,12 +86,14 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
 
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-md mx-8">
-              <form action="/jobs" method="get" className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <input
                   name="q"
                   type="text"
                   placeholder="Type to search jobs..."
                   className="w-full pl-4 pr-10 py-2 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button
                   type="submit"
@@ -156,12 +169,14 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
           <div className="lg:hidden bg-white border-t border-gray-100 fixed inset-x-0 top-[72px] bottom-0 z-40 overflow-y-auto">
             <div className="p-4 space-y-4">
               {/* Mobile Search */}
-              <form action="/jobs" method="get" className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <input
                   name="q"
                   type="text"
                   placeholder="Search jobs..."
                   className="w-full pl-4 pr-10 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <button
                   type="submit"

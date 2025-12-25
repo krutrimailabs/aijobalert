@@ -1,0 +1,86 @@
+[
+  {
+    "category": "General Aptitude",
+    "topic": "Problems on Trains",
+    "questions": [
+      {
+        "text": "A train running at the speed of 60 km/hr crosses a pole in 9 seconds. What is the length of the train?",
+        "options": [
+          { "text": "120 metres", "isCorrect": false },
+          { "text": "150 metres", "isCorrect": true },
+          { "text": "180 metres", "isCorrect": false },
+          { "text": "324 metres", "isCorrect": false }
+        ],
+        "explanation": "Speed = 60 km/hr = 60 * (5/18) m/sec = 50/3 m/sec. \n\nTime taken to cross the pole = 9 sec.\n\nLength of Train = (Speed * Time) = (50/3 * 9) m = 150 metres."
+      },
+      {
+        "text": "A train 125 m long passes a man, running at 5 km/hr in the same direction in which the train is going, in 10 seconds. The speed of the train is:",
+        "options": [
+          { "text": "45 km/hr", "isCorrect": false },
+          { "text": "50 km/hr", "isCorrect": true },
+          { "text": "54 km/hr", "isCorrect": false },
+          { "text": "55 km/hr", "isCorrect": false }
+        ],
+        "explanation": "Speed of the train relative to man = (125/10) m/sec = 12.5 m/sec. 12.5 m/sec = (12.5 * 18/5) km/hr = 45 km/hr. Let speed of train be x km/hr. Then, relative speed = (x - 5) km/hr. Therefore, x - 5 = 45 => x = 50 km/hr."
+      },
+      {
+        "text": "The length of the bridge, which a train 130 metres long and travelling at 45 km/hr can cross in 30 seconds, is:",
+        "options": [
+          { "text": "200 m", "isCorrect": false },
+          { "text": "225 m", "isCorrect": false },
+          { "text": "245 m", "isCorrect": true },
+          { "text": "250 m", "isCorrect": false }
+        ],
+        "explanation": "Speed = 45 * 5/18 = 25/2 m/s. Time = 30 sec. Distance = (25/2 * 30) = 375m. Length of bridge = 375 - 130 = 245 m."
+      }
+    ]
+  },
+  {
+    "category": "General Aptitude",
+    "topic": "Time and Work",
+    "questions": [
+      {
+        "text": "A can do a work in 15 days and B in 20 days. If they work on it together for 4 days, then the fraction of the work that is left is:",
+        "options": [
+          { "text": "1/4", "isCorrect": false },
+          { "text": "1/10", "isCorrect": false },
+          { "text": "8/15", "isCorrect": true },
+          { "text": "7/15", "isCorrect": false }
+        ],
+        "explanation": "A's 1 day's work = 1/15. B's 1 day's work = 1/20. (A+B)'s 1 day's work = (1/15 + 1/20) = 7/60. (A+B)'s 4 days work = (7/60 * 4) = 7/15. Removing work = 1 - 7/15 = 8/15."
+      }
+    ]
+  },
+  {
+    "category": "Programming",
+    "topic": "C Programming",
+    "questions": [
+      {
+        "text": "Who is known as the father of C Language?",
+        "options": [
+          { "text": "James Gosling", "isCorrect": false },
+          { "text": "Dennis Ritchie", "isCorrect": true },
+          { "text": "Bjarne Stroustrup", "isCorrect": false },
+          { "text": "Guido van Rossum", "isCorrect": false }
+        ],
+        "explanation": "Dennis Ritchie is known as the father of C Language."
+      }
+    ]
+  },
+  {
+    "category": "Engineering",
+    "topic": "Civil Engineering",
+    "questions": [
+      {
+        "text": "The ratio of the volume of voids to the volume of soil solids in a given soil mass is known as:",
+        "options": [
+          { "text": "Porosity", "isCorrect": false },
+          { "text": "Void ratio", "isCorrect": true },
+          { "text": "Specific gravity", "isCorrect": false },
+          { "text": "Water content", "isCorrect": false }
+        ],
+        "explanation": "Void Ratio (e) = Volume of Voids / Volume of Solids."
+      }
+    ]
+  }
+]

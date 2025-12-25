@@ -10,24 +10,38 @@ import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 
-import { Post } from '@/payload-types'
+import { Job, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
-const generateTitle: GenerateTitle<Post> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | AI Job Alert` : 'AI Job Alert'
+const generateTitle: GenerateTitle<Job | Post> = ({ doc }) => {
+  if ('postName' in doc) {
+    return doc?.postName ? `${doc.postName} | AI Job Alert` : 'AI Job Alert'
+  }
+  if ('title' in doc) {
+    return doc?.title ? `${doc.title} | AI Job Alert` : 'AI Job Alert'
+  }
+  return 'AI Job Alert'
 }
 
-const generateURL: GenerateURL<Post> = ({ doc }) => {
+const generateURL: GenerateURL<Job | Post> = ({ doc }) => {
   const url = getServerSideURL()
 
-  return doc?.slug ? `${url}/${doc.slug}` : url
+  if ('postName' in doc) {
+    return doc?.id ? `${url}/jobs/${doc.id}` : url
+  }
+
+  if ('slug' in doc) {
+    return doc?.slug ? `${url}/posts/${doc.slug}` : url
+  }
+
+  return url
 }
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    collections: ['posts'],
+    collections: ['jobs', 'posts'],
     overrides: {
-      // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
+      // @ts-expect-error - This is a valid override
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
           if ('name' in field && field.name === 'from') {
@@ -81,7 +95,7 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts'],
+    collections: ['jobs', 'posts'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
       fields: ({ defaultFields }) => {
