@@ -6,20 +6,35 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const threadId = searchParams.get('threadId')
   const questionId = searchParams.get('questionId')
+  const statusParam = searchParams.get('status')
 
-  if (!threadId && !questionId) {
-    return NextResponse.json({ error: 'Missing threadId or questionId' }, { status: 400 })
+  if (!threadId && !questionId && !statusParam) {
+    return NextResponse.json({ error: 'Missing threadId, questionId, or status' }, { status: 400 })
   }
 
   try {
     const payload = await getPayload({ config: configPromise })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {
-      status: { equals: 'published' },
+    const where: any = {}
+
+    // Default to published unless admin requests specific status
+    if (statusParam) {
+      const user = await payload.auth(req)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const roles = (user as any)?.roles || []
+      const isAdmin = roles.includes('admin') || roles.includes('superadmin')
+
+      if (!isAdmin) {
+        return NextResponse.json({ error: 'Unauthorized to filter by status' }, { status: 403 })
+      }
+      where.status = { equals: statusParam }
+    } else {
+      where.status = { equals: 'published' }
     }
+
     if (threadId) where.thread = { equals: threadId }
-    if (questionId) where.question = { equals: questionId } // If we support comments directly on questions w/o thread
+    if (questionId) where.question = { equals: questionId }
 
     const comments = await payload.find({
       collection: 'comments',
@@ -32,6 +47,45 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('Error fetching comments:', error)
     return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const payload = await getPayload({ config: configPromise })
+
+    const user = await payload.auth(req)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const roles = (user as any)?.roles || []
+    const isAdmin = roles.includes('admin') || roles.includes('superadmin')
+
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { id, status } = await req.json()
+
+    if (!id || !status) {
+      return NextResponse.json({ error: 'Missing id or status' }, { status: 400 })
+    }
+
+    const comment = await payload.update({
+      collection: 'comments',
+      id,
+      data: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        status: status as any,
+      },
+    })
+
+    return NextResponse.json(comment)
+  } catch (error) {
+    console.error('Error updating comment:', error)
+    return NextResponse.json({ error: 'Failed to update comment' }, { status: 500 })
   }
 }
 
@@ -76,6 +130,9 @@ export async function POST(req: NextRequest) {
       },
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const currentUser = (user as any).user || user
+
     const comment = await payload.create({
       collection: 'comments',
       data: {
@@ -84,7 +141,7 @@ export async function POST(req: NextRequest) {
         thread: threadId,
         question: questionId ? Number(questionId) : undefined,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        user: (user as any).id,
+        user: (currentUser as any).id,
         upvotes: 0,
         status: 'published', // Auto-approve
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,6 +1,6 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+export async function up({ db, payload: _payload, req: _req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
     DO $$ BEGIN
       CREATE TYPE "public"."enum_threads_status" AS ENUM('published', 'pending', 'rejected');
@@ -20,7 +20,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   `)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+export async function down({ db, payload: _payload, req: _req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
     ALTER TABLE "threads" DROP COLUMN IF EXISTS "status";
     ALTER TABLE "comments" DROP COLUMN IF EXISTS "status";

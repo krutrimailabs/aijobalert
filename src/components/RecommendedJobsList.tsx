@@ -1,29 +1,10 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { JobCard } from './JobCard'
+import { JobCard, Job } from './JobCard'
 import { LoadingSpinner } from './ui/loading-spinner'
 import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
-
-interface Job {
-  id: string | number
-  postName: string
-  recruitmentBoard: string
-  totalVacancies?: number
-  lastDate: string
-  state?: string
-  status?: string
-  category?: string[]
-  education?: string[]
-  updatedAt?: string
-  postDate?: string
-  salaryStipend?: string
-  minimumAge?: number
-  maximumAge?: number
-  feeGeneral?: string
-  applicationStartDate?: string
-}
 
 export function RecommendedJobsList() {
   const [jobs, setJobs] = useState<Job[]>([])
@@ -32,10 +13,16 @@ export function RecommendedJobsList() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const res = await fetch('/api/jobs/recommendations')
+        const res = await fetch('/api/jobs/match', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ limit: 10 }),
+        })
         if (res.ok) {
           const data = await res.json()
-          setJobs(data)
+          setJobs(data.docs || [])
         }
       } catch (error) {
         console.error('Failed to fetch recommendations', error)

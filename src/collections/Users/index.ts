@@ -31,13 +31,70 @@ export const Users: CollectionConfig = {
       ],
     },
     // Profile fields for job matching
+    // Profile fields for job matching
+    {
+      name: 'educationHistory',
+      type: 'array',
+      label: 'Education History',
+      admin: {
+        description: 'Add your educational qualifications from 10th onwards',
+      },
+      fields: [
+        {
+          name: 'level',
+          type: 'select',
+          required: true,
+          options: [
+            { label: '10th (Matriculation)', value: '10th' },
+            { label: '12th (Intermediate)', value: '12th' },
+            { label: 'Diploma', value: 'Diploma' },
+            { label: 'Graduate (Bachelor)', value: 'Graduate' },
+            { label: 'Post Graduate (Master)', value: 'PostGraduate' },
+            { label: 'PhD', value: 'PhD' },
+          ],
+        },
+        {
+          name: 'degree',
+          type: 'text',
+          label: 'Degree / Course Name',
+          admin: {
+            placeholder: 'e.g., B.Tech, MBBS, B.A.',
+            condition: (_data, siblingData) => !['10th', '12th'].includes(siblingData?.level),
+          },
+        },
+        {
+          name: 'stream',
+          type: 'text',
+          label: 'Stream / Specialization',
+          admin: {
+            placeholder: 'e.g., Computer Science, Civil Engineering',
+            condition: (_data, siblingData) => !['10th'].includes(siblingData?.level),
+          },
+        },
+        {
+          name: 'passingYear',
+          type: 'number',
+          min: 1950,
+          max: 2030,
+        },
+        {
+          name: 'percentage',
+          type: 'number',
+          min: 0,
+          max: 100,
+          label: 'Percentage / CGPA (converted)',
+        },
+      ],
+    },
+    // Keep deprecated field for migration
     {
       name: 'qualification',
       type: 'select',
       hasMany: true,
       options: EDUCATION_LEVELS,
       admin: {
-        description: 'Your educational qualifications',
+        readOnly: true,
+        description: 'DEPRECATED: Use Education History above. (Read-only)',
       },
     },
     {
@@ -88,12 +145,39 @@ export const Users: CollectionConfig = {
       ],
     },
     {
-      name: 'physicallyDisabled',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        description: 'PWD category (for age relaxation and reserved posts)',
-      },
+      name: 'disability',
+      type: 'group',
+      label: 'Disability Details (PWD)',
+      fields: [
+        {
+          name: 'isEnabled',
+          type: 'checkbox',
+          label: 'Are you a Person with Disability (PWD)?',
+          defaultValue: false,
+        },
+        {
+          name: 'type',
+          type: 'select',
+          label: 'Type of Disability',
+          options: [
+            { label: 'Visual Impairment (VI)', value: 'VI' },
+            { label: 'Hearing Impairment (HI)', value: 'HI' },
+            { label: 'Locomotor Disability (LD)', value: 'LD' },
+            { label: 'Other / Multiple', value: 'Other' },
+          ],
+          admin: {
+            condition: (_data, siblingData) => siblingData.isEnabled,
+          },
+        },
+        {
+          name: 'percentage',
+          type: 'number',
+          label: 'Disability Percentage',
+          admin: {
+            condition: (_data, siblingData) => siblingData.isEnabled,
+          },
+        },
+      ],
     },
     {
       name: 'stats',

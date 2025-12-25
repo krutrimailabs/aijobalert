@@ -89,15 +89,16 @@ export const PracticeQuestionCard: React.FC<PracticeQuestionProps> = ({
               View Answer
             </Button>
 
-            <Link href={`/community/new?questionId=${id}`}>
-              <Button
-                variant="ghost"
-                className="text-gray-500 hover:text-gray-700 p-0 h-auto flex items-center gap-1 ml-auto"
-              >
+            <Button
+              asChild
+              variant="ghost"
+              className="text-gray-500 hover:text-gray-700 p-0 h-auto flex items-center gap-1 ml-auto"
+            >
+              <Link href={`/community/new?questionId=${id}`}>
                 <MessageSquare className="w-4 h-4" />
                 Discuss in Forum
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
 
           {showAnswer && (

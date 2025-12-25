@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Search, MapPin, Briefcase } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function UsersPage() {
   const payload = await getPayload({ config })
 

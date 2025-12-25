@@ -22,6 +22,8 @@ import { CurrentAffairs } from './collections/CurrentAffairs'
 import { Syllabus } from './collections/Syllabus'
 
 import { Threads } from './collections/Threads'
+import { ForumTopics } from './collections/ForumTopics'
+import { Votes } from './collections/Votes'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { SiteSettings } from './globals/SiteSettings'
@@ -97,6 +99,8 @@ export default buildConfig({
     CurrentAffairs,
     Syllabus,
     Threads,
+    ForumTopics,
+    Votes,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, SiteSettings, FooterGlobal, SEOSettings],

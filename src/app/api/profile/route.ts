@@ -19,7 +19,8 @@ export async function PATCH(request: NextRequest) {
       preferredStates,
       dateOfBirth,
       gender,
-      physicallyDisabled,
+      educationHistory,
+      disability,
     } = body
 
     // Validation (Basic) - Payload will handle schema validation but we can be explicit
@@ -32,7 +33,8 @@ export async function PATCH(request: NextRequest) {
     if (preferredStates !== undefined) updateData.preferredStates = preferredStates
     if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth
     if (gender !== undefined) updateData.gender = gender
-    if (physicallyDisabled !== undefined) updateData.physicallyDisabled = physicallyDisabled
+    if (educationHistory !== undefined) updateData.educationHistory = educationHistory
+    if (disability !== undefined) updateData.disability = disability
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })

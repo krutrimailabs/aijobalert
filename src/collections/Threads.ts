@@ -45,6 +45,32 @@ export const Threads: CollectionConfig = {
       },
     },
     {
+      name: 'topic',
+      type: 'relationship',
+      relationTo: 'forum-topics',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'upvotes',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'downvotes',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'tags',
       type: 'select',
       hasMany: true,

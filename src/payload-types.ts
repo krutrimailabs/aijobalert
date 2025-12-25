@@ -85,6 +85,8 @@ export interface Config {
     'current-affairs': CurrentAffair;
     syllabus: Syllabus;
     threads: Thread;
+    'forum-topics': ForumTopic;
+    votes: Vote;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -120,6 +122,8 @@ export interface Config {
     'current-affairs': CurrentAffairsSelect<false> | CurrentAffairsSelect<true>;
     syllabus: SyllabusSelect<false> | SyllabusSelect<true>;
     threads: ThreadsSelect<false> | ThreadsSelect<true>;
+    'forum-topics': ForumTopicsSelect<false> | ForumTopicsSelect<true>;
+    votes: VotesSelect<false> | VotesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -189,7 +193,20 @@ export interface User {
   name: string;
   roles: ('superadmin' | 'admin' | 'candidate')[];
   /**
-   * Your educational qualifications
+   * Add your educational qualifications from 10th onwards
+   */
+  educationHistory?:
+    | {
+        level: '10th' | '12th' | 'Diploma' | 'Graduate' | 'PostGraduate' | 'PhD';
+        degree?: string | null;
+        stream?: string | null;
+        passingYear?: number | null;
+        percentage?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * DEPRECATED: Use Education History above. (Read-only)
    */
   qualification?:
     | (
@@ -313,10 +330,11 @@ export interface User {
    */
   category?: ('General' | 'OBC' | 'SC' | 'ST' | 'EWS') | null;
   gender?: ('Male' | 'Female' | 'Other') | null;
-  /**
-   * PWD category (for age relaxation and reserved posts)
-   */
-  physicallyDisabled?: boolean | null;
+  disability?: {
+    isEnabled?: boolean | null;
+    type?: ('VI' | 'HI' | 'LD' | 'Other') | null;
+    percentage?: number | null;
+  };
   stats?: {
     /**
      * Last time the user logged in
@@ -601,6 +619,22 @@ export interface Job {
    * Reference date for age calculation (e.g., "as on 01-08-2025")
    */
   ageCalculationDate?: string | null;
+  structuredRequirements?: {
+    education?:
+      | {
+          levels?: ('10th' | '12th' | 'Diploma' | 'Graduate' | 'PostGraduate')[] | null;
+          degrees?: string[] | null;
+          streams?: string[] | null;
+          id?: string | null;
+        }[]
+      | null;
+    experience?: {
+      minYears?: number | null;
+      maxYears?: number | null;
+      mandatorySkills?: string[] | null;
+    };
+    gender?: ('Male' | 'Female' | 'Any') | null;
+  };
   /**
    * Minimum age requirement in years
    */
@@ -609,8 +643,15 @@ export interface Job {
    * Maximum age requirement in years
    */
   maximumAge?: number | null;
+  ageRelaxationRules?:
+    | {
+        category: 'SC' | 'ST' | 'OBC' | 'PWD' | 'EWS' | 'Ex-Serviceman';
+        years: number;
+        id?: string | null;
+      }[]
+    | null;
   /**
-   * Age relaxation details for SC/ST/OBC/PWD/Ex-servicemen
+   * Age relaxation explanation details
    */
   ageRelaxation?: {
     root: {
@@ -1187,8 +1228,9 @@ export interface Comment {
     };
     [k: string]: unknown;
   };
-  upvotes?: number | null;
   status: 'published' | 'pending' | 'rejected';
+  upvotes?: number | null;
+  downvotes?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1216,9 +1258,26 @@ export interface Thread {
   };
   author: number | User;
   relatedQuestion?: (number | null) | Question;
+  topic?: (number | null) | ForumTopic;
+  upvotes?: number | null;
+  downvotes?: number | null;
   tags?: ('general' | 'strategy' | 'doubt' | 'news' | 'success-story')[] | null;
   status: 'published' | 'pending' | 'rejected';
   slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forum-topics".
+ */
+export interface ForumTopic {
+  id: number;
+  title: string;
+  description?: string | null;
+  icon?: (number | null) | Media;
+  slug?: string | null;
+  threadCount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1275,6 +1334,19 @@ export interface Syllabus {
       }[]
     | null;
   pdf?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "votes".
+ */
+export interface Vote {
+  id: number;
+  user: number | User;
+  type: 'up' | 'down';
+  thread?: (number | null) | Thread;
+  comment?: (number | null) | Comment;
   updatedAt: string;
   createdAt: string;
 }
@@ -1720,6 +1792,14 @@ export interface PayloadLockedDocument {
         value: number | Thread;
       } | null)
     | ({
+        relationTo: 'forum-topics';
+        value: number | ForumTopic;
+      } | null)
+    | ({
+        relationTo: 'votes';
+        value: number | Vote;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1788,13 +1868,29 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   roles?: T;
+  educationHistory?:
+    | T
+    | {
+        level?: T;
+        degree?: T;
+        stream?: T;
+        passingYear?: T;
+        percentage?: T;
+        id?: T;
+      };
   qualification?: T;
   domicileState?: T;
   preferredStates?: T;
   dateOfBirth?: T;
   category?: T;
   gender?: T;
-  physicallyDisabled?: T;
+  disability?:
+    | T
+    | {
+        isEnabled?: T;
+        type?: T;
+        percentage?: T;
+      };
   stats?:
     | T
     | {
@@ -1941,8 +2037,35 @@ export interface JobsSelect<T extends boolean = true> {
   admitCardDate?: T;
   resultDate?: T;
   ageCalculationDate?: T;
+  structuredRequirements?:
+    | T
+    | {
+        education?:
+          | T
+          | {
+              levels?: T;
+              degrees?: T;
+              streams?: T;
+              id?: T;
+            };
+        experience?:
+          | T
+          | {
+              minYears?: T;
+              maxYears?: T;
+              mandatorySkills?: T;
+            };
+        gender?: T;
+      };
   minimumAge?: T;
   maximumAge?: T;
+  ageRelaxationRules?:
+    | T
+    | {
+        category?: T;
+        years?: T;
+        id?: T;
+      };
   ageRelaxation?: T;
   physicalStandards?: T;
   feeGeneral?: T;
@@ -2179,8 +2302,9 @@ export interface CommentsSelect<T extends boolean = true> {
   question?: T;
   thread?: T;
   content?: T;
-  upvotes?: T;
   status?: T;
+  upvotes?: T;
+  downvotes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2246,9 +2370,37 @@ export interface ThreadsSelect<T extends boolean = true> {
   content?: T;
   author?: T;
   relatedQuestion?: T;
+  topic?: T;
+  upvotes?: T;
+  downvotes?: T;
   tags?: T;
   status?: T;
   slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forum-topics_select".
+ */
+export interface ForumTopicsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  icon?: T;
+  slug?: T;
+  threadCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "votes_select".
+ */
+export interface VotesSelect<T extends boolean = true> {
+  user?: T;
+  type?: T;
+  thread?: T;
+  comment?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,6 +1,83 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextRequest, NextResponse } from 'next/server'
+import { Thread, User } from '@/payload-types'
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const statusParam = searchParams.get('status')
+
+  try {
+    const payload = await getPayload({ config: configPromise })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {}
+
+    if (statusParam) {
+      const user = await payload.auth(req)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const roles = (user as any)?.roles || []
+      const isAdmin = roles.includes('admin') || roles.includes('superadmin')
+
+      if (!isAdmin) {
+        return NextResponse.json({ error: 'Unauthorized to filter by status' }, { status: 403 })
+      }
+      where.status = { equals: statusParam }
+    } else {
+      where.status = { equals: 'published' }
+    }
+
+    const threads = await payload.find({
+      collection: 'threads',
+      where,
+      sort: '-createdAt',
+      depth: 1,
+    })
+
+    return NextResponse.json(threads)
+  } catch (error) {
+    console.error('Error fetching threads:', error)
+    return NextResponse.json({ error: 'Failed to fetch threads' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const payload = await getPayload({ config: configPromise })
+
+    const user = await payload.auth(req)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const roles = (user as any)?.roles || []
+    const isAdmin = roles.includes('admin') || roles.includes('superadmin')
+
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { id, status } = await req.json()
+
+    if (!id || !status) {
+      return NextResponse.json({ error: 'Missing id or status' }, { status: 400 })
+    }
+
+    const thread = await payload.update({
+      collection: 'threads',
+      id,
+      data: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        status: status as any,
+      },
+    })
+
+    return NextResponse.json(thread)
+  } catch (error) {
+    console.error('Error updating thread:', error)
+    return NextResponse.json({ error: 'Failed to update thread' }, { status: 500 })
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,12 +94,21 @@ export async function POST(req: NextRequest) {
     // For this MVP, let's try standard create.
 
     // Verify user is logged in
-    const user = await payload.auth(req)
-    if (!user) {
+    const userResponse = await payload.auth(req)
+    if (!userResponse) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { title, content, relatedQuestion } = await req.json()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const user = (userResponse as any).user || userResponse
+    const currentUser = user as User
+
+    if (!currentUser || !currentUser.id) {
+      console.error('User ID missing from auth response:', userResponse)
+      return NextResponse.json({ error: 'Unauthorized: No User ID' }, { status: 401 })
+    }
+
+    const { title, content, relatedQuestion, topic } = await req.json()
 
     // Simple Lexical structure generator
     const lexicalContent = {
@@ -51,26 +137,40 @@ export async function POST(req: NextRequest) {
           },
         ],
       },
+    } as unknown as Thread['content']
+
+    const threadData: Omit<Thread, 'id' | 'createdAt' | 'updatedAt' | 'slug'> = {
+      title,
+      content: lexicalContent,
+      author: currentUser.id,
+      status: 'published',
+    }
+
+    if (relatedQuestion) {
+      threadData.relatedQuestion = Number(relatedQuestion)
+    }
+
+    if (topic) {
+      threadData.topic = Number(topic)
     }
 
     const thread = await payload.create({
       collection: 'threads',
-      data: {
-        title,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        content: lexicalContent as any,
-        relatedQuestion: relatedQuestion ? Number(relatedQuestion) : undefined,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        author: (user as any).id,
-        status: 'published', // Auto-approve by default
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any,
+      data: threadData,
     })
 
     return NextResponse.json(thread)
-  } catch (error) {
-    console.error('Error creating thread:', error)
-    return NextResponse.json({ error: 'Failed to create thread' }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('Error creating thread (Full Details):', error)
+    if (typeof error === 'object' && error !== null && 'data' in error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      console.error('Payload Error Data:', (error as any).data)
+    }
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    return NextResponse.json(
+      { error: 'Failed to create thread', details: errorMessage },
+      { status: 500 },
+    )
   }
 }
 

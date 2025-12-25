@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Users, Mail, TrendingUp, UserCheck } from 'lucide-react'
 import { StatsChart } from './stats-chart'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AnalyticsPage() {
   const payload = await getPayload({ config })
 

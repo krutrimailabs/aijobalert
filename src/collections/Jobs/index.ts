@@ -136,6 +136,59 @@ export const Jobs: CollectionConfig = {
           label: 'Eligibility & Requirements',
           fields: [
             {
+              name: 'structuredRequirements',
+              type: 'group',
+              label: 'Structured Eligibility (AI Matching)',
+              fields: [
+                {
+                  name: 'education',
+                  type: 'array',
+                  fields: [
+                    {
+                      name: 'levels',
+                      type: 'select',
+                      hasMany: true,
+                      options: [
+                        { label: '10th', value: '10th' },
+                        { label: '12th', value: '12th' },
+                        { label: 'Diploma', value: 'Diploma' },
+                        { label: 'Graduate', value: 'Graduate' },
+                        { label: 'Post Graduate', value: 'PostGraduate' },
+                      ],
+                      label: 'Required Levels (Any of)',
+                    },
+                    {
+                      name: 'degrees',
+                      type: 'text',
+                      hasMany: true,
+                      label: 'Specific Degrees (e.g., B.Tech, MBBS)',
+                    },
+                    {
+                      name: 'streams',
+                      type: 'text',
+                      hasMany: true,
+                      label: 'Streams (e.g., CS, Mechanical)',
+                    },
+                  ],
+                },
+                {
+                  name: 'experience',
+                  type: 'group',
+                  fields: [
+                    { name: 'minYears', type: 'number', defaultValue: 0 },
+                    { name: 'maxYears', type: 'number' },
+                    { name: 'mandatorySkills', type: 'text', hasMany: true },
+                  ],
+                },
+                {
+                  name: 'gender',
+                  type: 'select',
+                  options: ['Male', 'Female', 'Any'],
+                  defaultValue: 'Any',
+                },
+              ],
+            },
+            {
               name: 'minimumAge',
               type: 'number',
               admin: {
@@ -150,10 +203,28 @@ export const Jobs: CollectionConfig = {
               },
             },
             {
+              name: 'ageRelaxationRules',
+              type: 'array',
+              label: 'Age Relaxation',
+              fields: [
+                {
+                  name: 'category',
+                  type: 'select',
+                  options: ['SC', 'ST', 'OBC', 'PWD', 'EWS', 'Ex-Serviceman'],
+                  required: true,
+                },
+                {
+                  name: 'years',
+                  type: 'number',
+                  required: true,
+                },
+              ],
+            },
+            {
               name: 'ageRelaxation',
               type: 'richText',
               admin: {
-                description: 'Age relaxation details for SC/ST/OBC/PWD/Ex-servicemen',
+                description: 'Age relaxation explanation details',
               },
             },
             {

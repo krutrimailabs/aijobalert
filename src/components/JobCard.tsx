@@ -24,6 +24,8 @@ export interface Job {
   maximumAge?: number
   feeGeneral?: string
   applicationStartDate?: string
+  matchScore?: number
+  isEligible?: boolean
 }
 
 const HighlightText = ({ text, highlight }: { text: string; highlight?: string }) => {
@@ -171,6 +173,23 @@ export function JobCard({ job, searchQuery }: { job: Job; searchQuery?: string }
               <span className="text-[9px] md:text-[10px] font-bold text-blue-700 uppercase">
                 <HighlightText text={job.recruitmentBoard || 'Govt'} highlight={searchQuery} />
               </span>
+
+              {/* MATCH SCORE BADGE */}
+              {job.matchScore !== undefined && job.matchScore > 0 && (
+                <span
+                  className={cn(
+                    'px-1.5 py-0.5 text-white text-[8px] md:text-[9px] font-bold rounded flex items-center gap-0.5',
+                    job.matchScore >= 80
+                      ? 'bg-green-600'
+                      : job.matchScore >= 50
+                        ? 'bg-blue-600'
+                        : 'bg-amber-500',
+                  )}
+                >
+                  {job.matchScore}% Match
+                </span>
+              )}
+
               {isApplied && (
                 <span className="px-1.5 py-0.5 bg-green-600 text-white text-[8px] md:text-[9px] font-bold rounded flex items-center gap-0.5">
                   ✓ APPLIED

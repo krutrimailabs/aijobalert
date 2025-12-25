@@ -14,8 +14,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
-import { EDUCATION_LEVELS, INDIAN_STATES, JOB_CATEGORIES } from '@/lib/constants'
+import { INDIAN_STATES, JOB_CATEGORIES } from '@/lib/constants'
 import { Loader2 } from 'lucide-react'
+import { EducationHistoryForm, EducationEntry } from '@/components/profile/EducationHistoryForm'
 
 export function ProfileEditForm() {
   const { user, setUser } = useAuthStore()
@@ -24,25 +25,31 @@ export function ProfileEditForm() {
   const [successMessage, setSuccessMessage] = useState('')
 
   // Local state for form fields, initialized from user store
-  // We use simple controlled inputs here
-  const [formData, setFormData] = useState({
-    category: user?.category || '',
+  const [formData, setFormData] = useState<{
+    category: string
+    domicileState: string
+    educationHistory: EducationEntry[]
+    gender: string
+    disability: {
+      isEnabled: boolean
+      type?: 'VI' | 'HI' | 'LD' | 'Other' | null
+      percentage?: number | null
+    }
+    dateOfBirth: string
+  }>({
+    category: user?.category || 'General',
     domicileState: user?.domicileState || '',
-    // Cast to string[] to simplify local state handling, will cast back when needed or just rely on backend validation
-    qualification: (user?.qualification || []) as string[],
+    // @ts-expect-error user type might be stale
+    educationHistory: user?.educationHistory || [],
     gender: user?.gender || '',
-    physicallyDisabled: user?.physicallyDisabled || false,
+    // @ts-expect-error user type might be stale
+    disability: user?.disability || { isEnabled: false, type: 'Other', percentage: 0 },
     dateOfBirth: user?.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
   })
 
-  // TODO: Add support for multi-select preferredStates and qualification if UI library permits easily
-
-  const handleChange = (field: string, value: string | boolean) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleQualificationChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, qualification: [value] }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +58,7 @@ export function ProfileEditForm() {
     setSuccessMessage('')
 
     try {
+      // Using /api/profile endpoint as it maps to the custom route we verified
       const res = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -159,32 +167,69 @@ export function ProfileEditForm() {
           </Select>
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="qualification">Highest Qualification</Label>
-          <Select
-            value={formData.qualification?.[0] || ''}
-            onValueChange={handleQualificationChange}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select Qualification" />
-            </SelectTrigger>
-            <SelectContent>
-              {EDUCATION_LEVELS.map((edu) => (
-                <SelectItem key={edu.value} value={edu.value}>
-                  {edu.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="space-y-2 col-span-1 md:col-span-2">
+          <EducationHistoryForm
+            value={formData.educationHistory}
+            onChange={(val) => handleChange('educationHistory', val)}
+          />
         </div>
 
-        <div className="flex items-center space-x-2 md:col-span-2">
-          <Checkbox
-            id="pwd"
-            checked={formData.physicallyDisabled}
-            onCheckedChange={(checked) => handleChange('physicallyDisabled', checked === true)}
-          />
-          <Label htmlFor="pwd">I am a Person with Disability (PWD)</Label>
+        {/* Disability Section */}
+        <div className="space-y-4 col-span-1 md:col-span-2 border rounded-lg p-4 bg-slate-50">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="pwd"
+              checked={formData.disability?.isEnabled}
+              onCheckedChange={(checked) => {
+                const current = formData.disability || {
+                  isEnabled: false,
+                  type: 'Other',
+                  percentage: 0,
+                }
+                handleChange('disability', { ...current, isEnabled: checked === true })
+              }}
+            />
+            <Label htmlFor="pwd" className="font-semibold">
+              I am a Person with Disability (PWD)
+            </Label>
+          </div>
+
+          {formData.disability?.isEnabled && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6 border-l-2 border-primary/20 ml-1">
+              <div className="space-y-2">
+                <Label>Disability Type</Label>
+                <Select
+                  value={formData.disability.type || undefined}
+                  onValueChange={(val: 'VI' | 'HI' | 'LD' | 'Other') =>
+                    handleChange('disability', { ...formData.disability, type: val })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="VI">Visual Impairment (VI)</SelectItem>
+                    <SelectItem value="HI">Hearing Impairment (HI)</SelectItem>
+                    <SelectItem value="LD">Locomotor Disability (LD)</SelectItem>
+                    <SelectItem value="Other">Other / Multiple</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Percentage (%)</Label>
+                <Input
+                  type="number"
+                  value={formData.disability.percentage || ''}
+                  onChange={(e) =>
+                    handleChange('disability', {
+                      ...formData.disability,
+                      percentage: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

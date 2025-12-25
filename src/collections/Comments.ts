@@ -42,11 +42,7 @@ export const Comments: CollectionConfig = {
       type: 'richText',
       required: true,
     },
-    {
-      name: 'upvotes',
-      type: 'number',
-      defaultValue: 0,
-    },
+
     {
       name: 'status',
       type: 'select',
@@ -60,6 +56,16 @@ export const Comments: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
+    },
+    {
+      name: 'upvotes',
+      type: 'number',
+      defaultValue: 0,
+    },
+    {
+      name: 'downvotes',
+      type: 'number',
+      defaultValue: 0,
     },
   ],
 }

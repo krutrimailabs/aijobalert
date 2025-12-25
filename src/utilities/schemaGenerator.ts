@@ -54,6 +54,15 @@ export const generateOrganizationSchema = (): WithContext<Organization> => {
   }
 }
 
+interface SitelinksSearchAction {
+  '@type': 'SearchAction'
+  target: {
+    '@type': 'EntryPoint'
+    urlTemplate: string
+  }
+  'query-input': string
+}
+
 export const generateWebSiteSchema = (): WithContext<WebSite> => {
   return {
     '@context': 'https://schema.org',
@@ -67,6 +76,6 @@ export const generateWebSiteSchema = (): WithContext<WebSite> => {
         urlTemplate: `${process.env.NEXT_PUBLIC_SERVER_URL}/jobs?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
-    } as any,
+    } as SitelinksSearchAction,
   }
 }
