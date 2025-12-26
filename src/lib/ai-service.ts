@@ -13,7 +13,7 @@ export async function generateJobSummary(jobText: string): Promise<string> {
 
   const genAI = new GoogleGenerativeAI(apiKey)
   const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
   })
 
   const prompt = `
@@ -75,11 +75,33 @@ export async function generateJobSummary(jobText: string): Promise<string> {
   }
 }
 
+export interface JobParsedData {
+  _verification_logic?: {
+    identified_dates: string[]
+    vacancy_check: string
+    ambiguity_resolution: string
+  }
+  postName?: string
+  totalVacancies?: number
+  recruitmentBoard?: string
+  advtNo?: string | null
+  lastDate?: string | null
+  applicationStartDate?: string | null
+  minAge?: number
+  maxAge?: number
+  education?: Array<{ level: string; degree: string }>
+  salaryStipend?: string
+  confidenceScore?: number
+  error?: string
+  details?: string
+}
+
 /**
  * Parses raw text from a Government Job PDF and extracts structured data.
  */
-export async function parseJobNotification(pdfText: string): Promise<any> {
+export async function parseJobNotification(pdfText: string): Promise<JobParsedData | null> {
   const apiKey = process.env.GEMINI_API_KEY || ''
+  const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash' // Fallback handled by env var usually
 
   if (!apiKey) {
     console.warn('GEMINI_API_KEY is not set. Skipping AI parsing.')
@@ -88,8 +110,9 @@ export async function parseJobNotification(pdfText: string): Promise<any> {
 
   const genAI = new GoogleGenerativeAI(apiKey)
   // Use a model with larger context window if possible, but flash is good for speed/cost
+  // 'gemini-3-pro-preview' is recommended for this reasoning task.
   const model = genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp',
+    model: modelName,
     generationConfig: { responseMimeType: 'application/json' },
   })
 
@@ -98,16 +121,26 @@ export async function parseJobNotification(pdfText: string): Promise<any> {
   const truncatedText = pdfText.substring(0, 50000)
 
   const prompt = `
-  You are an expert Data Extraction AI for Government Jobs (Sarkari Naukri).
-  Your task is to extract specific fields from the provided Job Notification Text into a strict JSON format.
+  You are an expert Government Job Notification Auditor. 
+  Your goal is to extract structured data from the provided text with 100% accuracy.
 
-  Text to Analyze:
-  """
-  ${truncatedText}
-  """
+  ### CRITICAL INSTRUCTION: CHAIN OF VERIFICATION
+  Government notifications are often messy. Before extracting the final values, you must perform a verification step inside the "_verification_logic" field.
+  
+  Follow this strict reasoning process:
+  1. **Date Verification:** Scan for all dates. Distinguish between "Notification Date", "Application Start Date", and "Last Date". If a year is missing, infer it from the context of other dates.
+  2. **Vacancy Summation:** If vacancies are listed by category (SC/ST/OBC/UR), sum them up to verify the "Total Vacancies" count matches the document.
+  3. **Ambiguity Check:** If there are multiple posts, identify which one is the "primary" post or if this is a general recruitment drive.
 
-  OUTPUT JSON STRUCTURE:
+  ### REQUIRED JSON STRUCTURE
+  You must return the result in this exact JSON format. The "_verification_logic" field must be filled FIRST.
+
   {
+    "_verification_logic": {
+      "identified_dates": ["List all dates found in text with their context"],
+      "vacancy_check": "Calculated sum of category vacancies vs stated total",
+      "ambiguity_resolution": "Notes on how you decided on the specific post name or dates"
+    },
     "postName": "string (Main role name, e.g. Probationary Officer)",
     "totalVacancies": number,
     "recruitmentBoard": "string (Organization name)",
@@ -123,11 +156,16 @@ export async function parseJobNotification(pdfText: string): Promise<any> {
     "confidenceScore": number (0-100, how confident are you that the extracted data is accurate based on clarity of text)
   }
 
+  ### DOCUMENT TEXT:
+  """
+  ${truncatedText}
+  """
+
   RULES:
-  1. If a date is not found, return null. 
-  2. Normalize dates to ISO 8601 (YYYY-MM-DD).
-  3. "confidenceScore" should reflect if the OCR/Text was messy or clear.
-  4. Return ONLY the JSON object. Do not include markdown code blocks.
+  1. **Dates**: Normalize to ISO 8601 (YYYY-MM-DD). If a year is missing, infer the current year of the notification context (usually 2024-2025).
+  2. **Education**: Map confusing degrees to the closest standard level (e.g., "B.E./B.Tech" -> "Graduate").
+  3. **Confidence**: Lower the score if dates are ambiguous or text is unreadable.
+  4. **Output**: Return ONLY the JSON object. Do not include markdown code blocks.
   `
 
   try {
