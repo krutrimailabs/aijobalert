@@ -48,18 +48,8 @@ export async function Footer() {
 
             {/* Social Links & CTA */}
             <div className="space-y-3">
-              <Link
-                href="/about"
-                className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors mr-2"
-              >
-                About Us
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-block px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg transition-colors"
-              >
-                Contact Us
-              </Link>
+              {/* Removed About/Contact buttons as per request */
+              /* You can add Social Media Icons here instead */}
             </div>
           </div>
 
@@ -83,6 +73,24 @@ export async function Footer() {
               </Link>
               <Link href="/syllabus" className="text-sm hover:text-white transition-colors">
                 Syllabus
+              </Link>
+              <Link
+                href="/practice"
+                className="text-sm hover:text-white transition-colors font-semibold text-blue-400"
+              >
+                Practice
+              </Link>
+              <Link
+                href="/practice/mock-tests"
+                className="text-sm hover:text-white transition-colors"
+              >
+                Mock Tests
+              </Link>
+              <Link
+                href="/community"
+                className="text-sm hover:text-white transition-colors font-semibold text-blue-400"
+              >
+                Community
               </Link>
               <Link href="/exam-calendar" className="text-sm hover:text-white transition-colors">
                 Exam Calendar

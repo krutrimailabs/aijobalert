@@ -4,6 +4,16 @@ import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { Menu, X, Search, FileText, ChevronDown } from 'lucide-react'
 import { JOB_CATEGORIES, EDUCATION_LEVELS, INDIAN_STATES } from '@/lib/constants'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { useAuthStore } from '@/stores/authStore'
 
 // Navigation structure with dropdowns
 interface NavItem {
@@ -15,6 +25,24 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Latest Jobs', href: '/jobs' },
+  {
+    label: 'Practice',
+    href: '/practice',
+    dropdown: [
+      { label: 'All Practice Topics', href: '/practice' },
+      { label: 'Mock Tests', href: '/practice/mock-tests' },
+      { label: 'Previous Papers', href: '/papers' },
+      { label: 'Current Affairs', href: '/current-affairs' },
+    ],
+  },
+  {
+    label: 'Community',
+    href: '/community',
+    dropdown: [
+      { label: 'All Discussions', href: '/community' },
+      { label: 'New Topic', href: '/community/new' },
+    ],
+  },
   {
     label: 'Jobs by Category',
     dropdown: JOB_CATEGORIES.map((cat) => ({
@@ -40,8 +68,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Admit Card', href: '/admit-cards' },
   { label: 'Answer Key', href: '/answer-keys' },
   { label: 'Syllabus', href: '/syllabus' },
-  { label: 'About Us', href: '/about' },
-  { label: 'Contact Us', href: '/contact' },
   {
     label: 'Dashboard',
     dropdown: [
@@ -59,6 +85,7 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null)
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const { user, isLoading } = useAuthStore()
 
   const toggleExpanded = (label: string) => {
     setExpandedMenu(expandedMenu === label ? null : label)
@@ -123,6 +150,61 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
                   Join Telegram
                 </a>
               </div>
+
+              {/* Auth Section - Desktop */}
+              <div className="hidden lg:block ml-2">
+                {!isLoading &&
+                  (user ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity border-2 border-blue-100">
+                          <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">
+                            {(user.name || 'U').charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/dashboard" className="cursor-pointer">
+                            Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/dashboard/profile" className="cursor-pointer">
+                            Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/dashboard/applications" className="cursor-pointer">
+                            My Applications
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/saved-jobs" className="cursor-pointer">
+                            Saved Jobs
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-red-600 focus:text-red-600 cursor-pointer"
+                          onClick={() => useAuthStore.getState().logout()}
+                        >
+                          Logout
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                    >
+                      Login
+                    </Link>
+                  ))}
+              </div>
+
               {/* Mobile Menu Button */}
               <button
                 className="lg:hidden z-50 p-2 text-slate-600 hover:bg-slate-100 rounded-lg"
@@ -138,7 +220,7 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
         <nav className="hidden lg:block bg-blue-800 text-white shadow-lg">
           <div className="max-w-7xl mx-auto px-2">
             <ul className="flex items-center justify-start text-xs font-bold whitespace-nowrap">
-              {NAV_ITEMS.map((item) => (
+              {NAV_ITEMS.filter((item) => item.label !== 'Dashboard').map((item) => (
                 <li key={item.label} className="relative group">
                   {item.dropdown ? (
                     <>
@@ -177,6 +259,35 @@ export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ he
         {isOpen && (
           <div className="lg:hidden bg-white border-t border-gray-100 fixed inset-x-0 top-[72px] bottom-0 z-40 overflow-y-auto">
             <div className="p-4 space-y-4">
+              {/* Mobile Auth Section */}
+              <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100">
+                {!isLoading &&
+                  (user ? (
+                    <div className="flex items-center gap-3 w-full">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback>{(user.name || 'U').charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <button
+                        onClick={() => useAuthStore.getState().logout()}
+                        className="text-xs text-red-600 font-medium px-2 py-1 border border-red-200 rounded"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="w-full text-center bg-blue-600 text-white py-2 rounded-lg font-semibold"
+                    >
+                      Login / Sign Up
+                    </Link>
+                  ))}
+              </div>
+
               {/* Mobile Search */}
               <form onSubmit={handleSearch} className="relative">
                 <input
