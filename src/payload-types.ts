@@ -905,6 +905,17 @@ export interface JobApplication {
    */
   resultDate?: string | null;
   /**
+   * Track status changes over time
+   */
+  timeline?:
+    | {
+        status: 'applied' | 'admit-card-downloaded' | 'exam-given' | 'result-awaited' | 'selected' | 'rejected';
+        date: string;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Application notes, preparation status, etc.
    */
   notes?: {
@@ -2128,6 +2139,14 @@ export interface JobApplicationsSelect<T extends boolean = true> {
   admitCardDate?: T;
   examDate?: T;
   resultDate?: T;
+  timeline?:
+    | T
+    | {
+        status?: T;
+        date?: T;
+        note?: T;
+        id?: T;
+      };
   notes?: T;
   updatedAt?: T;
   createdAt?: T;

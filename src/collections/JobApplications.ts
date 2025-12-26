@@ -90,6 +90,39 @@ export const JobApplications: CollectionConfig = {
       },
     },
     {
+      name: 'timeline',
+      type: 'array',
+      label: 'Application Timeline History',
+      admin: {
+        description: 'Track status changes over time',
+      },
+      fields: [
+        {
+          name: 'status',
+          type: 'select',
+          required: true,
+          options: [
+            { label: 'Applied', value: 'applied' },
+            { label: 'Admit Card Downloaded', value: 'admit-card-downloaded' },
+            { label: 'Exam Given', value: 'exam-given' },
+            { label: 'Result Awaited', value: 'result-awaited' },
+            { label: 'Selected', value: 'selected' },
+            { label: 'Rejected', value: 'rejected' },
+          ],
+        },
+        {
+          name: 'date',
+          type: 'date',
+          required: true,
+          defaultValue: () => new Date().toISOString(),
+        },
+        {
+          name: 'note',
+          type: 'text',
+        },
+      ],
+    },
+    {
       name: 'notes',
       type: 'richText',
       admin: {

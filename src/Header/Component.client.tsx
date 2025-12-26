@@ -42,6 +42,15 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Syllabus', href: '/syllabus' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
+  {
+    label: 'Dashboard',
+    dropdown: [
+      { label: 'My Profile', href: '/dashboard/profile' },
+      { label: 'My Applications', href: '/dashboard/applications' },
+      { label: 'Resume Builder', href: '/dashboard/resume' },
+      { label: 'Saved Jobs', href: '/saved-jobs' },
+    ],
+  },
 ]
 
 export const HeaderClient: React.FC<{ headerPromise: Promise<unknown> }> = ({ headerPromise }) => {
