@@ -1,6 +1,9 @@
 import { CollectionConfig, Access } from 'payload'
 import { JOB_CATEGORIES, INDIAN_STATES, EDUCATION_LEVELS } from '../../lib/constants'
-import { generateJobSummary } from '../../lib/ai-service'
+// We need to import 'fs' and 'path' to read the uploaded file, but Payload hooks run in Node context so it's fine.
+import fs from 'fs'
+import path from 'path'
+import { generateJobSummary, parseJobNotification } from '../../lib/ai-service'
 
 const isStaff: Access = ({ req: { user } }) =>
   Boolean(user?.roles?.some((role: string) => ['admin', 'superadmin'].includes(role)))
@@ -19,9 +22,9 @@ export const Jobs: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
-      async ({ data, req: _req, operation }) => {
+      async ({ data, req, operation }) => {
+        // AI Summary Generation (Existing)
         if (operation === 'create' || (operation === 'update' && !data.aiSummary)) {
-          // If we have eligibility details, try to generate a summary
           if (data.eligibilityDetails) {
             try {
               const content = JSON.stringify(data.eligibilityDetails)
@@ -31,6 +34,72 @@ export const Jobs: CollectionConfig = {
             }
           }
         }
+
+        // AI PDF Parsing (New)
+        // Trigger if 'sourcePDF' is present and parsingStatus is 'pending'
+        if (data.sourcePDF && data.parsingStatus === 'pending') {
+          try {
+            data.parsingStatus = 'processing'
+
+            // Fetch the file. In hook, 'sourcePDF' might be an ID or object.
+            // We need to fetch the actual file path.
+            // Note: deeply nested 'req.payload' call might be needed to get file path from ID.
+            // Simplified approach: assume local upload for MVP.
+
+            const fileId = typeof data.sourcePDF === 'object' ? data.sourcePDF.id : data.sourcePDF
+            const fileDoc = await req.payload.findByID({
+              collection: 'media',
+              id: fileId,
+            })
+
+            if (fileDoc && fileDoc.url) {
+              // Construct absolute path. Payload stores uploads in /public/media usually or configured dir.
+              // Let's rely on 'fileDoc.filename' and config.
+              // Assuming standard './media' dir relative to payload config or process.cwd
+              const filePath = path.resolve(process.cwd(), 'public', 'media', fileDoc.filename!)
+
+              if (fs.existsSync(filePath)) {
+                const dataBuffer = fs.readFileSync(filePath)
+                // Dynamic import to handle CommonJS/ESM interop issues for pdf-parse
+                const pdfParseModule = await import('pdf-parse')
+                const parsingFunc =
+                  (
+                    pdfParseModule as unknown as {
+                      default?: (data: Buffer) => Promise<{ text: string }>
+                    }
+                  ).default ||
+                  (pdfParseModule as unknown as (data: Buffer) => Promise<{ text: string }>)
+                const pdfData = await parsingFunc(dataBuffer)
+                const text = pdfData.text
+
+                if (text.length > 100) {
+                  const aiResult = await parseJobNotification(text)
+
+                  if (aiResult && !aiResult.error) {
+                    // Auto-fill fields if they apply
+                    if (aiResult.postName) data.postName = aiResult.postName
+                    if (aiResult.totalVacancies) data.totalVacancies = aiResult.totalVacancies
+                    if (aiResult.recruitmentBoard) data.recruitmentBoard = aiResult.recruitmentBoard
+                    if (aiResult.lastDate) data.lastDate = aiResult.lastDate
+                    // Map other fields as needed
+
+                    data.parsingStatus = 'completed'
+                    data.confidenceScore = aiResult.confidenceScore || 80
+                    data.aiParsingMetadata = aiResult
+                  } else {
+                    data.parsingStatus = 'failed'
+                    data.aiParsingMetadata = { error: 'AI returned empty or error' }
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            console.error('PDF Parse Error:', error)
+            data.parsingStatus = 'failed'
+            data.aiParsingMetadata = { error: String(error) }
+          }
+        }
+
         return data
       },
     ],
@@ -379,6 +448,47 @@ export const Jobs: CollectionConfig = {
           label: 'AI & Content',
           fields: [
             {
+              name: 'sourcePDF',
+              type: 'upload',
+              relationTo: 'media',
+              label: 'Original Notification (PDF)',
+              admin: {
+                description: 'Upload the official PDF here to trigger AI parsing.',
+              },
+            },
+            {
+              name: 'parsingStatus',
+              type: 'select',
+              options: [
+                { label: 'Pending', value: 'pending' },
+                { label: 'Processing', value: 'processing' },
+                { label: 'Completed', value: 'completed' },
+                { label: 'Failed', value: 'failed' },
+              ],
+              defaultValue: 'pending',
+              admin: {
+                position: 'sidebar',
+              },
+            },
+            {
+              name: 'confidenceScore',
+              type: 'number',
+              min: 0,
+              max: 100,
+              admin: {
+                position: 'sidebar',
+                description: 'AI Confidence Score (0-100)',
+              },
+            },
+            {
+              name: 'isVerified',
+              type: 'checkbox',
+              label: 'Verified via AI/Manual Check',
+              admin: {
+                position: 'sidebar',
+              },
+            },
+            {
               name: 'expectedCutoff',
               type: 'number',
               admin: {
@@ -387,6 +497,14 @@ export const Jobs: CollectionConfig = {
               },
             },
             { name: 'aiSummary', type: 'textarea' },
+            {
+              name: 'aiParsingMetadata',
+              type: 'json',
+              admin: {
+                description: 'Raw metadata extracted by AI for debugging',
+                readOnly: true,
+              },
+            },
             { name: 'eligibilityDetails', type: 'richText' },
             { name: 'salaryStipend', type: 'text' },
             { name: 'applyLink', type: 'text' },

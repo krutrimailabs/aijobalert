@@ -824,10 +824,32 @@ export interface Job {
   shortNotification?: (number | null) | Media;
   previousPapers?: (number | PreviousPaper)[] | null;
   /**
+   * Upload the official PDF here to trigger AI parsing.
+   */
+  sourcePDF?: (number | null) | Media;
+  parsingStatus?: ('pending' | 'processing' | 'completed' | 'failed') | null;
+  /**
+   * AI Confidence Score (0-100)
+   */
+  confidenceScore?: number | null;
+  isVerified?: boolean | null;
+  /**
    * Expected cutoff marks (out of 100) for qualification prediction engine
    */
   expectedCutoff?: number | null;
   aiSummary?: string | null;
+  /**
+   * Raw metadata extracted by AI for debugging
+   */
+  aiParsingMetadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   eligibilityDetails?: {
     root: {
       type: string;
@@ -2107,8 +2129,13 @@ export interface JobsSelect<T extends boolean = true> {
       };
   shortNotification?: T;
   previousPapers?: T;
+  sourcePDF?: T;
+  parsingStatus?: T;
+  confidenceScore?: T;
+  isVerified?: T;
   expectedCutoff?: T;
   aiSummary?: T;
+  aiParsingMetadata?: T;
   eligibilityDetails?: T;
   salaryStipend?: T;
   applyLink?: T;
